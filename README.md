@@ -12,15 +12,18 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. Welcome and Introduction
    1. What is Blazor?
    1. Blazor Architecture
-   1. Build Your First Blazor App
    1. Data and Event Binding
+   1. (LAB 01) Build Your First Blazor App
    1. Understanding Blazor Routing
    1. Razor Components
+   1. (LAB 02) Create a Razor Component
    1. Blazor Forms
       1. EditForm Component
       1. Blazor Validation
       1. Hand-roll your own form
       1. Enhancing Maintainability with Components
+      1. QuickGrid Component
+   1. (LAB 03) Create an app to edit data
 1. Day 2
    1. Basic Dependency Injection
    1. Understanding Render Modes
