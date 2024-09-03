@@ -25,9 +25,14 @@
 4. Navigate to the `Counter` page
 5. Click on the `Click me` button
 6. You will see the counter incrementing
+   - Notice how the page does not reload when the counter increments. This is because of data binding. The `currentCount` field is _bound_ to the output with `@currentCount`.
+   - Also notice how the button click event is handled by the `IncrementCount` method. This is an example of event binding. The `@onclick` directive is used to bind the click event to the `IncrementCount` method.
+
 7. Navigate to the `Fetch Data` page
 8. You will see a table with some data
    - Notice how the page loads, then the data appears
+   - This is because the data is loaded asynchronously
+   - There is a `Task.Delay` to simulate a delay in loading the data
 
 ## Modify the application
 
@@ -111,3 +116,22 @@ Welcome to the Blazor Hands On Lab App.
 7. Press F5 to run the application
 8. Click on the `About Us` link in the navigation menu
 9. You will see the same page as the `About` link - both routes point to the same page
+
+## Using two-way data binding
+
+1. Open the file `Components/Pages/Counter.razor`
+2. Add a new input element to the page:
+
+```html
+<input type="text" @bind="currentCount" />
+```
+
+3. Save the file
+4. Press F5 to run the application
+5. Navigate to the `Counter` page
+6. You will see a text box
+7. Type a number in the text box
+8. Notice how the counter increments when you tab out of the text box
+   - This is because the `currentCount` field is bound to the input element with `@bind="currentCount"`
+9. Click on the `Click me` button
+10. You will see the counter incrementing in the text box and the output as they are both bound to the same field

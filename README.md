@@ -13,9 +13,16 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. What is Blazor?
    1. Blazor Architecture
    1. Understanding Blazor Routing
-   1. (LAB 01) Build Your First Blazor App
    1. Data and Event Binding
+   1. (LAB 01) Build Your First Blazor App
    1. Razor Components
+      1. Razor components
+      1. Razor pages vs Razor components
+      1. Razor component lifecycle
+      1. Composing Razor components
+      1. Razor component parameters
+      1. Cascading parameters
+      1. Razor component events
    1. (LAB 02) Create a Razor Component
    1. Blazor Forms
       1. EditForm Component
@@ -24,7 +31,6 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Enhancing Maintainability with Components
       1. QuickGrid Component
    1. (LAB 03) Create an app to edit data
-1. Day 2
    1. Basic Dependency Injection
    1. Understanding Render Modes
       1. Server-Static
@@ -35,7 +41,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Detecting the Current Render Mode
       1. Dependency Injection in WebAssembly vs Server
    1. Blazor and JavaScript Interop
-1. Day 3
+1. Day 2
    1. Styling Blazor Apps
       1. Blazor Layouts
       1. Global CSS
@@ -50,6 +56,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Authorized Attribute
       1. Role-based Authorization
       1. Policy-based Authorization
+1. Day 3
    1. Data Access
       1. Using a Database
       1. Using an API
