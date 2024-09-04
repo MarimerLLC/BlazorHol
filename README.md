@@ -22,8 +22,8 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. StateHasChanged method
       1. Composing Razor components
       1. Razor component parameters
-      1. Cascading parameters
       1. Razor component events
+      1. Cascading parameters
    1. (LAB 02) Create a Razor Component
    1. Basic Dependency Injection
       1. Registering Services

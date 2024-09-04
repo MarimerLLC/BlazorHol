@@ -12,10 +12,21 @@
 
 @code {
     [Parameter]
+    public EventCallback<int> CurrentCountChanged { get; set; }
+
+    [CascadingParameter]
+    public int StartCount { get; set; }
+
     public int CurrentCount { get; set;}
 
-    private void IncrementCount()
+    protected override void OnInitialized()
+    {
+        CurrentCount = StartCount;
+    }
+
+    private async Task IncrementCount()
     {
         CurrentCount++;
+        await CurrentCountChanged.InvokeAsync(CurrentCount);
     }
 }

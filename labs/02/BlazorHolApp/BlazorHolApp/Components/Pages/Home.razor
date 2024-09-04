@@ -6,4 +6,22 @@
 
 Welcome to the Blazor Hands On Lab App.
 
-<Counter CurrentCount="42" />
+<p>Count: @CurrentCount</p>
+
+<CascadingValue Value="123">
+    <div class="border border-4">
+        <Counter />
+    </div>
+    <div class="border border-4">
+        <Counter />
+    </div>
+</CascadingValue>
+
+@code {
+    private int CurrentCount = 0;
+
+    private void CountChanged(int count)
+    {
+        this.CurrentCount = count;
+    }
+}
