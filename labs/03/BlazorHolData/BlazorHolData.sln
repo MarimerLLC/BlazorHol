@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35209.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorHolData", "BlazorHolData\BlazorHolData.csproj", "{28DABBA6-5F84-47B2-B9AF-B42AFE89BC3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28DABBA6-5F84-47B2-B9AF-B42AFE89BC3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28DABBA6-5F84-47B2-B9AF-B42AFE89BC3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28DABBA6-5F84-47B2-B9AF-B42AFE89BC3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28DABBA6-5F84-47B2-B9AF-B42AFE89BC3D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BC1F600B-8410-4582-BF39-70A04BA62B9A}
+	EndGlobalSection
+EndGlobal
