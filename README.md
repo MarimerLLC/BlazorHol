@@ -19,11 +19,17 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Razor components
       1. Razor pages vs Razor components
       1. Razor component lifecycle
+      1. StateHasChanged method
       1. Composing Razor components
       1. Razor component parameters
       1. Cascading parameters
       1. Razor component events
    1. (LAB 02) Create a Razor Component
+   1. Basic Dependency Injection
+      1. Registering Services
+      1. Consuming Services
+      1. Service Lifetimes
+      1. This will change with Render Modes!
    1. Blazor Forms
       1. EditForm Component
       1. Blazor Validation
@@ -31,7 +37,6 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Enhancing Maintainability with Components
       1. QuickGrid Component
    1. (LAB 03) Create an app to edit data
-   1. Basic Dependency Injection
    1. Understanding Render Modes
       1. Server-Static
       1. Server-Static Streaming
@@ -39,7 +44,8 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Interactive WebAssembly
       1. Interactive Auto
       1. Detecting the Current Render Mode
-      1. Dependency Injection in WebAssembly vs Server
+      1. Dependency Injection in Different Render Modes
+   1. (LAB 04) Exploring Render Modes
    1. Blazor and JavaScript Interop
 1. Day 2
    1. Styling Blazor Apps
