@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BlazorHolData.Data
 
 <PageTitle>Home</PageTitle>
 
@@ -6,25 +7,21 @@
 
 Welcome to your new app.
 
-<table>
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>First name</th>
-            <th>Last name</th>
-            <th>Age</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var person in Data.Database.People)
-        {
-            <tr>
-                <td style="min-width:50px">@person.Id</td>
-                <td>@person.FirstName</td>
-                <td>@person.LastName</td>
-                <td>@person.Age</td>
-                <td><a href="EditPerson/id=@person.Id">Edit</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div>
+    <a href="EditPerson">Add new person</a>
+</div>
+
+<div class="grid">
+    <QuickGrid Items="@Data.Database.People.AsQueryable()">
+        <PropertyColumn Property="@(_ => _.Id)" />
+        <PropertyColumn Property="@(_ => _.FirstName)" Sortable="true" />
+        <PropertyColumn Property="@(_ => _.LastName)" Sortable="true" />
+        <PropertyColumn Property="@(_ => _.Age)" Sortable="true" />
+        <TemplateColumn>
+            <a href="EditPerson/@context.Id">Edit</a>
+        </TemplateColumn>
+        <TemplateColumn>
+            <a href="RemovePerson/@context.Id">Remove</a>
+        </TemplateColumn>
+    </QuickGrid>
+</div>

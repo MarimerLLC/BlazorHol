@@ -1,0 +1,54 @@
+﻿@page "/removeperson/{id:int}"
+
+@using BlazorHolData.Data
+
+@inject NavigationManager NavigationManager
+
+<h3>Remove Person</h3>
+
+@if (Person == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <p>Are you sure you want to remove this person?</p>
+        <p>First Name: @Person.FirstName</p>
+        <p>Last Name: @Person.LastName</p>
+        <p>Age: @Person.Age</p>
+        <button class="btn btn-danger" @onclick="Remove">Remove</button>
+        <button class="btn btn-primary" @onclick="GoHome">Cancel</button>
+    </div>
+}
+
+@code {
+    private Person? Person { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Id > 0)
+        {
+            Person = Data.Database.People.Where(p => p.Id == Id).FirstOrDefault();
+        }
+        else
+        {
+            GoHome();
+        }
+    }
+
+    private void Remove()
+    {
+        if (Person == null) return;
+        Data.Database.People.Remove(Person);
+        GoHome();
+    }
+
+    private void GoHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}
