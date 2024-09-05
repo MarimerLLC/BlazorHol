@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35209.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorRenderModes", "BlazorRenderModes\BlazorRenderModes\BlazorRenderModes.csproj", "{765DCDD0-4661-4582-9D26-07C35D8A3194}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorRenderModes.Client", "BlazorRenderModes\BlazorRenderModes.Client\BlazorRenderModes.Client.csproj", "{7FAA6D5F-5FD9-4864-8255-BB47C5FD3CCC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{765DCDD0-4661-4582-9D26-07C35D8A3194}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{765DCDD0-4661-4582-9D26-07C35D8A3194}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{765DCDD0-4661-4582-9D26-07C35D8A3194}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{765DCDD0-4661-4582-9D26-07C35D8A3194}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FAA6D5F-5FD9-4864-8255-BB47C5FD3CCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FAA6D5F-5FD9-4864-8255-BB47C5FD3CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FAA6D5F-5FD9-4864-8255-BB47C5FD3CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FAA6D5F-5FD9-4864-8255-BB47C5FD3CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A84F64F7-3772-49A8-9D15-7AC463EDB899}
+	EndGlobalSection
+EndGlobal

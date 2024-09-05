@@ -37,6 +37,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Enhancing Maintainability with Components
       1. QuickGrid Component
    1. (LAB 03) Create an app to edit data
+1. Day 2
    1. Understanding Render Modes
       1. Server-Static
       1. Server-Static Streaming
@@ -46,17 +47,25 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Detecting the Current Render Mode
       1. Dependency Injection in Different Render Modes
    1. (LAB 04) Exploring Render Modes
-   1. Blazor and JavaScript Interop
-1. Day 2
+   1. State management
+      1. State management per render mode
+      1. State management across render modes
    1. Styling Blazor Apps
       1. Blazor Layouts
       1. Global CSS
       1. Per-Component CSS
       1. Generating CSS
-   1. Authentication
+   1. (LAB 05) Style your Blazor App
+   1. Authentication Fundamentals
+      1. ClaimsPrincipal and ClaimsIdentity
       1. Authentication State Provider
       1. Accessing HttpContext
       1. Flowing the Principal to WebAssembly
+   1. Authentication with Oauth
+      1. Oauth Providers
+      1. Oauth Middleware
+      1. Oauth Authentication
+      1. Oauth Roles and Claims
    1. Authorization
       1. AuthorizedView Component
       1. Authorized Attribute
@@ -66,6 +75,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. Data Access
       1. Using a Database
       1. Using an API
+   1. Blazor and JavaScript Interop
 1. Day 4
    1. Blazor MAUI Hybrid
       1. Blazor Mobile
