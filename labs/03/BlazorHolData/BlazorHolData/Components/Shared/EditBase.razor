@@ -1,0 +1,42 @@
+﻿@using System.Linq.Expressions
+@inherits ComponentBase
+
+@code {
+    /// <summary>
+    /// Gets or sets the current edit context
+    /// </summary>
+    [CascadingParameter]
+    protected EditContext? CurrentEditContext { get; set; }
+
+    /// <summary>
+    /// Gets the member info from the expression
+    /// </summary>
+    /// <param name="member"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    protected System.Reflection.MemberInfo GetMemberInfo(Expression member)
+    {
+        if (member == null) 
+            throw new ArgumentNullException(nameof(member));
+
+        if (member is not LambdaExpression lambda)
+            throw new ArgumentException("Not a lambda expression", nameof(member));
+
+        MemberExpression? memberExpr = null;
+
+        if (lambda.Body.NodeType == ExpressionType.Convert)
+        {
+            memberExpr = ((UnaryExpression)lambda.Body)?.Operand as MemberExpression;
+        }
+        else if (lambda.Body.NodeType == ExpressionType.MemberAccess)
+        {
+            memberExpr = lambda.Body as MemberExpression;
+        }
+
+        if (memberExpr == null) 
+            throw new ArgumentException("Not a member access", nameof(member));
+
+        return memberExpr.Member;
+    }
+}

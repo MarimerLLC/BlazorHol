@@ -335,3 +335,182 @@ else
 
 4. Press `Ctrl+F5` to run the app.
 5. Add, edit, and remove some people.
+
+## Using Razor Components
+
+1. Create a new folder named `Shared` in the `Components` folder.
+1. Create a new component in the `Shared` folder named `EditBase.razor`:
+
+```html
+@using System.Linq.Expressions
+@inherits ComponentBase
+
+@code {
+    /// <summary>
+    /// Gets or sets the current edit context
+    /// </summary>
+    [CascadingParameter]
+    protected EditContext? CurrentEditContext { get; set; }
+
+    /// <summary>
+    /// Gets the member info from the expression
+    /// </summary>
+    /// <param name="member"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    protected System.Reflection.MemberInfo GetMemberInfo(Expression member)
+    {
+        if (member == null) 
+            throw new ArgumentNullException(nameof(member));
+
+        if (member is not LambdaExpression lambda)
+            throw new ArgumentException("Not a lambda expression", nameof(member));
+
+        MemberExpression? memberExpr = null;
+
+        if (lambda.Body.NodeType == ExpressionType.Convert)
+        {
+            memberExpr = ((UnaryExpression)lambda.Body)?.Operand as MemberExpression;
+        }
+        else if (lambda.Body.NodeType == ExpressionType.MemberAccess)
+        {
+            memberExpr = lambda.Body as MemberExpression;
+        }
+
+        if (memberExpr == null) 
+            throw new ArgumentException("Not a member access", nameof(member));
+
+        return memberExpr.Member;
+    }
+}
+```
+
+This component provides a base class for creating edit components. It provides access to the `CurrentEditContext` and a method to get the member information from an expression.
+
+3. Create a new component in the `Shared` folder named `TextEdit.razor`:
+
+```html
+@using System.Linq.Expressions
+@inherits EditBase
+
+<div class="form-group">
+    <label for="FirstName">First Name</label>
+    <InputText id="FirstName" class="form-control" @bind-Value="Text" />
+    <ValidationMessage For="@(() => For)" />
+</div>
+
+@code {
+    [Parameter]
+    public Expression<Func<string>>? For { get; set; }
+
+    private System.Reflection.PropertyInfo? _property;
+
+    private string Text
+    {
+        get
+        {
+            if (CurrentEditContext?.Model == null || _property == null) return string.Empty;
+            return _property.GetValue(CurrentEditContext.Model)?.ToString() ?? string.Empty;
+        }
+        set
+        {
+            if (CurrentEditContext?.Model == null || _property == null) return;
+            _property.SetValue(CurrentEditContext.Model, value);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (For is null)
+            throw new InvalidOperationException("For is required");
+        _property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
+        if (_property == null)
+            throw new InvalidOperationException("For must be a property");
+    }
+}
+```
+
+This component provides a text input for editing a string property. It uses the `EditBase` component to get the member information from the `For` parameter.
+
+4. Create a new component in the `Shared` folder named `NumberEdit.razor`:
+
+```html
+@using System.Linq.Expressions
+@inherits EditBase
+
+<div class="form-group">
+    <label for="FirstName">First Name</label>
+    <InputNumber id="FirstName" class="form-control" @bind-Value="Value" />
+    <ValidationMessage For="@(() => For)" />
+</div>
+
+@code {
+    [Parameter]
+    public Expression<Func<int>>? For { get; set; }
+
+    private System.Reflection.PropertyInfo? _property;
+
+    private int Value
+    {
+        get
+        {
+            if (CurrentEditContext?.Model == null || _property == null) return 0;
+            var value = _property.GetValue(CurrentEditContext.Model);
+            return (int)(value ?? 0);
+        }
+        set
+        {
+            if (CurrentEditContext?.Model == null || _property == null) return;
+            _property.SetValue(CurrentEditContext.Model, value);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (For is null)
+            throw new InvalidOperationException("For is required");
+        _property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
+        if (_property == null)
+            throw new InvalidOperationException("For must be a property");
+    }
+}
+```
+
+This component provides a number input for editing an integer property. It uses the `EditBase` component to get the member information from the `For` parameter.
+
+5. Update the `EditPerson` component to use the new components:
+
+```html
+@page "/editperson"
+@page "/editperson/{id:int}"
+
+@using BlazorHolData.Data
+@using BlazorHolData.Components.Shared
+
+@inject NavigationManager NavigationManager
+
+<h3>EditPerson</h3>
+
+@if (Person == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@Person" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <TextEdit For="() => Person.FirstName" />
+        <TextEdit For="() => Person.LastName" />
+        <NumberEdit For="() => Person.Age" />
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
+}
+```
+
+Notice how the `EditForm` is now using the `TextEdit` and `NumberEdit` components to edit the `Person` properties. This makes the code cleaner and more maintainable.
+
+6. Press `Ctrl+F5` to run the app.
+7. Add, edit, and remove some people.

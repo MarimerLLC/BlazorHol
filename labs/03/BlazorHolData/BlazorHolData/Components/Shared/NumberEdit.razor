@@ -1,0 +1,39 @@
+﻿@using System.Linq.Expressions
+@inherits EditBase
+
+<div class="form-group">
+    <label for="FirstName">First Name</label>
+    <InputNumber id="FirstName" class="form-control" @bind-Value="Value" />
+    <ValidationMessage For="@(() => For)" />
+</div>
+
+@code {
+    [Parameter]
+    public Expression<Func<int>>? For { get; set; }
+
+    private System.Reflection.PropertyInfo? _property;
+
+    private int Value
+    {
+        get
+        {
+            if (CurrentEditContext?.Model == null || _property == null) return 0;
+            var value = _property.GetValue(CurrentEditContext.Model);
+            return (int)(value ?? 0);
+        }
+        set
+        {
+            if (CurrentEditContext?.Model == null || _property == null) return;
+            _property.SetValue(CurrentEditContext.Model, value);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (For is null)
+            throw new InvalidOperationException("For is required");
+        _property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
+        if (_property == null)
+            throw new InvalidOperationException("For must be a property");
+    }
+}
