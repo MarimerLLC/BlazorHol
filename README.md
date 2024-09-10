@@ -59,8 +59,8 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Accessing HttpContext
       1. Flowing the Principal to WebAssembly
    1. (LAB 06) Basic Authentication
-   1. Authentication with JWT
-   1. (LAB) Authentication with JWT
+   1. Authentication via Oauth
+   1. (LAB) Authentication via Oauth
    1. Authorization
       1. AuthorizedView Component
       1. Authorized Attribute
@@ -80,6 +80,11 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. Data Access
    1. (LAB) Data Access
    1. Using Web APIs
+      1. Using HttpClient
+      1. Hosting Web APIs in Blazor Server
+      1. Hosting Web APIs Elsewhere
+         1. CORS
+         1. Authentication with JWT
    1. (LAB) Creating and Using APIs
 1. Day 4
    1. Blazor and JavaScript Interop
