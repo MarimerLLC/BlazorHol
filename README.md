@@ -70,7 +70,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
 1. Day 3
    1. Testing
       1. Testing with bunit
-   1. (LAB) Testing with Bunit
+   1. (LAB 09) Testing with Bunit
    1. Styling Blazor Apps
       1. Blazor Layouts
       1. Global CSS
