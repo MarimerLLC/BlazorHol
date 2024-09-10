@@ -21,15 +21,37 @@
 
 1. Add the package reference
 
+In the server project:
+
 ```text
 dotnet package add Marimer.Blazor.RenderMode
 ```
 
-2. Register the services in the _server and client_ `Program.cs` files
+In the client project:
+
+```text
+dotnet package add Marimer.Blazor.RenderMode.WebAssembly
+```
+
+2. Register the services 
+
+In the server `Program.cs` file:
 
 ```csharp
+using Marimer.Blazor.RenderMode;
+
 builder.Services.AddRenderModeDetection();
 ```
+
+In the client `Program.cs` file:
+
+```csharp
+using Marimer.Blazor.RenderMode.WebAssembly;
+
+builder.Services.AddRenderModeDetection();
+```
+
+This makes the render mode detection services available to the application. These are the same services you implemented in a previous lab, but now they are available as a package.
 
 ## Define Session and Interfaces
 
@@ -68,19 +90,6 @@ public interface ISessionManager
 
 This interface defines the methods that the session service must implement. The `Session` type is the session data object.
 
-3. In the _client_ project add a `ISessionIdManager` interface:
-
-```csharp
-namespace BlazorHolState;
-
-public interface ISessionIdManager
-{
-    Task<string?> GetSessionId();
-}
-```
-
-This interface defines the methods that the session id service must implement. This service is responsible for maintaining the current user session id.
-
 ## Create the Server Implementation
 
 1. Add a new folder to the _server_ project called `Services`
@@ -89,7 +98,7 @@ This interface defines the methods that the session id service must implement. T
 ```csharp
 namespace BlazorHolState.Server;
 
-public class SessionIdManager(IHttpContextAccessor httpContextAccessor) : ISessionIdManager
+public class SessionIdManager(IHttpContextAccessor httpContextAccessor)
 {
     private readonly IHttpContextAccessor HttpContextAccessor = httpContextAccessor;
 
@@ -148,9 +157,6 @@ public class SessionManager : ISessionManager
         if (!_sessions.ContainsKey(key))
             _sessions.Add(key, new Session());
         var session = _sessions[key];
-        // ensure session isn't checked out by wasm
-        //while (session.IsCheckedOut)
-        //    await Task.Delay(5);
         var endTime = DateTime.Now + TimeSpan.FromSeconds(10);
         while (session.IsCheckedOut)
         {
@@ -188,3 +194,24 @@ public class SessionManager : ISessionManager
 }
 ```
 
+This service manages the session data for the user. It uses the `ISessionIdManager` to get the session id and access the session data dictionary. The `GetSession` method retrieves the session data for the user, creating a new session if one does not exist. The `UpdateSession` method updates the session data with the new values.
+
+3. Register the services in the _server_ `Program.cs` file:
+
+```csharp
+```
+
+## Create the Client Implementation
+
+1. Add a new folder to the _client_ project called `Services`
+1. In the `Services` folder, add a new class called `SessionManager`:
+
+```csharp
+```
+
+This service is responsible for managing the session data for the user. It uses the `HttpClient` to communicate with the server to get and update the session data.
+
+2. Register the services in the _client_ `Program.cs` file:
+
+```csharp
+```
