@@ -48,6 +48,8 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. (LAB 04) Exploring Render Modes
 1. Day 2
    1. State management
+      1. Server-side storage, URL, and browser storage
+      1. PersistentComponentState
       1. State management per render mode
       1. State management across render modes
    1. (LAB 05) State Management
@@ -56,7 +58,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Authentication State Provider
       1. Accessing HttpContext
       1. Flowing the Principal to WebAssembly
-   1. (LAB) Basic Authentication
+   1. (LAB 06) Basic Authentication
    1. Authentication with JWT
    1. (LAB) Authentication with JWT
    1. Authorization
