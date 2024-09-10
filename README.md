@@ -34,10 +34,9 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. EditForm Component
       1. Blazor Validation
       1. Hand-roll your own form
-      1. Enhancing Maintainability with Components
       1. QuickGrid Component
+      1. Enhancing Maintainability with Components
    1. (LAB 03) Create an app to edit data
-1. Day 2
    1. Understanding Render Modes
       1. Server-Static
       1. Server-Static Streaming
@@ -47,38 +46,48 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Detecting the Current Render Mode
       1. Dependency Injection in Different Render Modes
    1. (LAB 04) Exploring Render Modes
+1. Day 2
    1. State management
       1. State management per render mode
       1. State management across render modes
-   1. Styling Blazor Apps
-      1. Blazor Layouts
-      1. Global CSS
-      1. Per-Component CSS
-      1. Generating CSS
-   1. (LAB 05) Style your Blazor App
+   1. (LAB 05) State Management
    1. Authentication Fundamentals
       1. ClaimsPrincipal and ClaimsIdentity
       1. Authentication State Provider
       1. Accessing HttpContext
       1. Flowing the Principal to WebAssembly
-   1. Authentication with Oauth
-      1. Oauth Providers
-      1. Oauth Middleware
-      1. Oauth Authentication
-      1. Oauth Roles and Claims
+   1. (LAB) Basic Authentication
+   1. Authentication with JWT
+   1. (LAB) Authentication with JWT
    1. Authorization
       1. AuthorizedView Component
       1. Authorized Attribute
       1. Role-based Authorization
       1. Policy-based Authorization
+   1. (LAB) Authorization
 1. Day 3
+   1. Testing
+      1. Testing with bunit
+   1. (LAB) Testing with Bunit
+   1. Styling Blazor Apps
+      1. Blazor Layouts
+      1. Global CSS
+      1. Per-Component CSS
+      1. Generating CSS
+   1. (LAB) Style your Blazor App
    1. Data Access
-      1. Using a Database
-      1. Using an API
-   1. Blazor and JavaScript Interop
+   1. (LAB) Data Access
+   1. Using Web APIs
+   1. (LAB) Creating and Using APIs
 1. Day 4
+   1. Blazor and JavaScript Interop
+   1. (LAB) JavaScript Interop
    1. Blazor MAUI Hybrid
       1. Blazor Mobile
       1. Blazor Desktop
-      1. Authentication
+   1. (LAB) MAUI Hybrid App
+   1. Authentication in MAUI
+   1. (LAB) Authentication in MAUI
    1. Blazor PWA
+   1. (LAB) Building a PWA
+   1. Uno and Avalonia

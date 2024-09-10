@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35209.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorHolState", "BlazorHolState\BlazorHolState\BlazorHolState.csproj", "{EDD17299-F51D-4910-A6D2-6FEE3FEB41E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorHolState.Client", "BlazorHolState\BlazorHolState.Client\BlazorHolState.Client.csproj", "{1578C556-427D-4474-B6C5-B3B4FFCDFED2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDD17299-F51D-4910-A6D2-6FEE3FEB41E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDD17299-F51D-4910-A6D2-6FEE3FEB41E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDD17299-F51D-4910-A6D2-6FEE3FEB41E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDD17299-F51D-4910-A6D2-6FEE3FEB41E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1578C556-427D-4474-B6C5-B3B4FFCDFED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1578C556-427D-4474-B6C5-B3B4FFCDFED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1578C556-427D-4474-B6C5-B3B4FFCDFED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1578C556-427D-4474-B6C5-B3B4FFCDFED2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8134747-D5BD-4A42-A91D-C9711E4114E0}
+	EndGlobalSection
+EndGlobal
