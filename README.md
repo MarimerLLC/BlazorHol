@@ -60,13 +60,13 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Flowing the Principal to WebAssembly
    1. (LAB 06) Basic Authentication
    1. Authentication via Oauth
-   1. (LAB) Authentication via Oauth
+   1. (LAB 07) Authentication via Entra Id
    1. Authorization
       1. AuthorizedView Component
       1. Authorized Attribute
       1. Role-based Authorization
       1. Policy-based Authorization
-   1. (LAB) Authorization
+   1. (LAB 08) Authorization
 1. Day 3
    1. Testing
       1. Testing with bunit

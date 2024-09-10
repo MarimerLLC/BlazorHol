@@ -1,0 +1,97 @@
+﻿@page "/login"
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using System.Security.Claims
+
+@inject Services.UserValidation UserValidation
+@inject IHttpContextAccessor httpContextAccessor
+@inject NavigationManager NavigationManager
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+<div>
+  <EditForm Model="userInfo" OnSubmit="LoginUser" FormName="loginform">
+      <div>
+          <label>Username</label>
+          <InputText @bind-Value="userInfo.Username" />
+      </div>
+      <div>
+          <label>Password</label>
+          <InputText type="password" @bind-Value="userInfo.Password" />
+      </div>
+      <button>Login</button>
+  </EditForm>
+</div>
+
+<div style="background-color:lightgray">
+  <p>User identities:</p>
+  <p>admin, admin</p>
+</div>
+
+<div><p class="alert-danger">@Message</p></div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public UserInfo userInfo { get; set; } = new();
+
+    private string ReturnUrl { get; set; } = "/";
+
+    private string Message { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        var query = new Uri(NavigationManager.Uri).Query;
+        if (!string.IsNullOrEmpty(query))
+        {
+            var queryDictionary = System.Web.HttpUtility.ParseQueryString(query);
+            ReturnUrl = queryDictionary["ret"] ?? "/";
+        }
+    }
+
+    private async Task LoginUser()
+    {
+        Message = "";
+        ClaimsPrincipal principal;
+        if (UserValidation.ValidateUser(userInfo.Username, userInfo.Password))
+        {
+            // create authenticated principal
+            var identity = new ClaimsIdentity("custom");
+            var claims = new List<Claim>();
+            claims.Add(new Claim(ClaimTypes.Name, userInfo.Username));
+            var roles = UserValidation.GetRoles(userInfo.Username);
+            foreach (var item in roles)
+                claims.Add(new Claim(ClaimTypes.Role, item));
+            identity.AddClaims(claims);
+            principal = new ClaimsPrincipal(identity);
+
+            var httpContext = httpContextAccessor.HttpContext;
+            if (httpContext is null)
+            {
+                Message = "HttpContext is null";
+                return;
+            }
+            AuthenticationProperties authProperties = new AuthenticationProperties();
+            await httpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                authProperties);
+
+            NavigationManager.NavigateTo(ReturnUrl);
+        }
+        else
+        {
+            Message = "Invalid credentials";
+        }
+    }
+
+
+    public class UserInfo
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,36 @@
+﻿@page "/"
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div class="border border-primary">
+    @if (AuthenticationState.User.Identity.IsAuthenticated)
+    {
+        <p>You are authenticated.</p>
+        <p>Username: @AuthenticationState.User.Identity.Name</p>
+        @foreach (var claim in AuthenticationState.User.Claims)
+        {
+            <p>@claim.Type: @claim.Value</p>
+        }
+        <p>Is Admin: @AuthenticationState.User.IsInRole("Admin")</p>
+    }
+    else
+    {
+        <p>You are not authenticated.</p>
+    }
+</div>
+
+@code
+{
+    private AuthenticationState AuthenticationState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    }
+}
