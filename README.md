@@ -76,7 +76,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Global CSS
       1. Per-Component CSS
       1. Generating CSS
-   1. (LAB) Style your Blazor App
+   1. (LAB 10) Style your Blazor App
    1. Data Access
    1. (LAB) Data Access
    1. Using Web APIs

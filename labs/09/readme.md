@@ -105,14 +105,20 @@ public class HelloWorldCsharpTests : BunitTestContext
 
 ## Fix the CounterCSharpTests Test
 
-1. In the `BlazorHolTestApp` project, open the `Counter.razor` file
-2. Change the `Counter` component to the following:
+1. In the `BlazorTests` project, open the `CounterCSharpTests.cs` file
+2. Replace the `CounterCSharpTests` class with the following code:
 
-```razor
-<p>Current count: @currentCount</p>
+```csharp
+    cut.Find("p").MarkupMatches(@<p role="status">Current count: 0</p>);
 ```
 
-This removes the `role="status"` text from the component.
+and
+
+```csharp
+    cut.Find("p").MarkupMatches(@<p role="status">Current count: 1</p>);
+```
+
+The `role="status"` attribute is added to the `p` elements to make the test pass. Microsoft has changed the Blazor template more recently than the bUnit templates have changed.
 
 ## Run the tests
 
