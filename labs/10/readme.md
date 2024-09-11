@@ -81,3 +81,64 @@ button {
 
 This is the consolidated CSS file that contains all the per-component CSS files in the project.
 
+## Customizing Bootstrap
+
+To customize Bootstrap you need to recompile Bootstrap to integrate your changes. You can use the `DartSassBuilder` NuGet package to compile the SCSS files in the project.
+
+1. Add a reference to the `DartSassBuilder` NuGet package in the server project.
+2. Create a new `scss` folder in the server project.
+3. Download Bootstrap from the [official website](https://getbootstrap.com/docs/5.1/getting-started/download/) and extract the `scss` folder from the zip archive to the `scss` folder in your project.
+![scss folder](scss-folder.png)
+4. Add a new file named `custom.scss` to the `scss` folder.
+![custom file](custom-file.png)
+5. Add the following code to the `custom.scss` file:
+
+```scss
+/* Colors */
+$primary: red;
+$secondary: #70af6d;
+
+$link-color: $primary;
+
+@import url('../lib/open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import "bootstrap/scss/bootstrap.scss";
+
+.btn-primary, .btn-primary:active, .btn-primary:focus, .btn-primary:checked {
+  background-color: $primary;
+  border-color: $gray-100;
+  color: white;
+}
+```
+
+These override defaults in Bootstrap. For example, the `$primary` variable is set to red, and the `.btn-primary` class is customized to have a red background color.
+
+6. Open the `BlazorHolStyling.csproj` file in the server project
+7. Add the following code to the file:
+
+```xml
+  <Target Name="CopyCssBundles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <MyCssBundles Include="scss\custom.css" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MyCssBundles)" DestinationFiles="wwwroot\%(Filename)%(Extension)" OverwriteReadOnlyFiles="true" />
+  </Target>
+```
+
+This copies the compiled CSS file to the `wwwroot` folder after the build process.
+
+8. Open the `App.razor` file in the `Components` folder
+9. Comment out the `app.css` link and add a link to the `custom.css` file:
+
+```html
+@*  <link rel="stylesheet" href="app.css" /> *@
+    <link rel="stylesheet" href="custom.css" />
+```
+
+9. Build the solution
+10. Notice the `custom.css` file in the `wwwroot` folder
+11. Open the `custom.css` file to see the compiled CSS
+12. Press F5 to run the app
+13. Navigate to the Counter page
+14. The button should now have the styles defined in the `custom.css` file
+
+⚠️ **Note:** Browser caching can cause styles to not appear immediately. You may need to clear your browser cache or use a private browsing window to see the changes.
