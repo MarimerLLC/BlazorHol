@@ -449,7 +449,7 @@ This component provides a text input for editing a string property. It uses the 
 @inherits EditBase
 
 <div class="form-group">
-    <label for="@Label">"@Label</label>
+    <label for="@Label">@Label</label>
     <InputNumber id="@Label" class="form-control" @bind-Value="Number" />
     <ValidationMessage For="@For" />
 </div>
