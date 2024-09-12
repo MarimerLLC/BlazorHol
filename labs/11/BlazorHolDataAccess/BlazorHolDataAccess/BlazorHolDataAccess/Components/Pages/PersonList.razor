@@ -1,0 +1,40 @@
+﻿@page "/personlist"
+
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@inject Data.IPersonDal personDal
+@inject NavigationManager NavigationManager
+
+<h3>PersonList</h3>
+
+@if (persons == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <p><a href="/personedit">Add person</a></p>
+
+    <QuickGrid Items="@persons.AsQueryable()">
+        <PropertyColumn Property="@(_ => _.Id)" />
+        <PropertyColumn Property="@(_ => _.FirstName)" Sortable="true" />
+        <PropertyColumn Property="@(_ => _.LastName)" Sortable="true" />
+        <PropertyColumn Property="@(_ => _.Age)" Sortable="true" />
+        <TemplateColumn>
+            <a href="personedit/@context.Id">Edit</a>
+        </TemplateColumn>
+        <TemplateColumn>
+            <a href="removeperson/@context.Id">Remove</a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+
+@code {
+
+    private List<Data.PersonEntity>? persons;
+
+    protected override async Task OnInitializedAsync()
+    {
+        persons = (await personDal.GetPeopleAsync()).ToList();
+    }
+}

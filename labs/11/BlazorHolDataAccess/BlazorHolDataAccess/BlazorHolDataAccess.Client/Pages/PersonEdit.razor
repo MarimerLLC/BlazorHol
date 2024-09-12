@@ -1,0 +1,79 @@
+﻿@page "/personedit"
+@page "/personedit/{id:int}"
+@rendermode InteractiveWebAssembly
+
+@using BlazorHolDataAccess.Client.Shared
+@using BlazorHolDataAccess.Data
+
+@inject IPersonDal personDal
+@inject NavigationManager NavigationManager
+
+<h3>PersonEdit</h3>
+
+<div class="alert-danger">@ErrorMessage</div>
+
+@if (Person == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@Person" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <TextEdit For="() => Person.FirstName" />
+        <TextEdit For="() => Person.LastName" />
+        <NumberEdit For="() => Person.Age" />
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private string ErrorMessage { get; set; } = null!;
+    private PersonEntity? Person { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (Id > 0)
+            {
+                Person = await personDal.GetPersonAsync(Id);
+            }
+            else
+            {
+                Person = new PersonEntity();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (Person == null) return;
+        try
+        {
+            if (Person.Id == 0)
+            {
+                await personDal.AddPersonAsync(Person);
+            }
+            else
+            {
+                await personDal.UpdatePersonAsync(Person);
+            }
+            NavigationManager.NavigateTo("/personlist");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.ToString();
+        }
+    }
+}

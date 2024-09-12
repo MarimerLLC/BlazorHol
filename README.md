@@ -78,7 +78,14 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. Generating CSS
    1. (LAB 10) Style your Blazor App
    1. Data Access
-   1. (LAB) Data Access
+      1. Server-side data access
+         * Entity Framework
+         * Dapper
+         * ADO.NET
+      1. WebAssembly data access via API (later)
+      1. Use dependency injection for connections/transactions
+      1. Formalize data access layer for maintainability
+   1. (LAB 11) Data Access
    1. Using Web APIs
       1. Using HttpClient
       1. Hosting Web APIs in Blazor Server
