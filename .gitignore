@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+*.db
+labs/11/BlazorHolDataAccess/BlazorHolDataAccess/BlazorHolDataAccess/BlazorHolDataAccess.db

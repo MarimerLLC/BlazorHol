@@ -60,7 +60,7 @@ public class PersonDal(SqliteConnection connection) : IPersonDal
         await command.ExecuteNonQueryAsync();
         using var idCommand = new SqliteCommand("SELECT last_insert_rowid()", connection);
         var newId = await idCommand.ExecuteScalarAsync() ?? 0;
-        return (int)newId;
+        return Convert.ToInt32(newId);
     }
 
     public Task UpdatePersonAsync(PersonEntity person)
