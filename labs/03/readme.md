@@ -343,6 +343,8 @@ else
 
 ```html
 @using System.Linq.Expressions
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
 @inherits ComponentBase
 
 @code {
@@ -352,6 +354,28 @@ else
     [CascadingParameter]
     protected EditContext? CurrentEditContext { get; set; }
 
+    [Parameter]
+    public Expression<Func<object>>? For { get; set; }
+
+    protected string? Label { get; set; }
+    protected System.Reflection.PropertyInfo? Property;
+
+    protected override void OnParametersSet()
+    {
+        if (For is null)
+            throw new InvalidOperationException("For is required");
+        Property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
+        if (Property == null)
+            throw new InvalidOperationException("For must be a property");
+
+        Label = Property.Name;
+        var displayName = Property.GetCustomAttributes<DisplayAttribute>().ToList().FirstOrDefault();
+        if (displayName != null)
+        {
+            Label = displayName.Name;
+        }
+    }
+
     /// <summary>
     /// Gets the member info from the expression
     /// </summary>
@@ -359,7 +383,7 @@ else
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    protected System.Reflection.MemberInfo GetMemberInfo(Expression member)
+    private System.Reflection.MemberInfo GetMemberInfo(Expression member)
     {
         if (member == null) 
             throw new ArgumentNullException(nameof(member));
@@ -379,59 +403,44 @@ else
         }
 
         if (memberExpr == null) 
-            throw new ArgumentException("Not a member access", nameof(member));
+            throw new ArgumentException("Not a member expression", nameof(member));
 
         return memberExpr.Member;
     }
 }
 ```
 
-This component provides a base class for creating edit components. It provides access to the `CurrentEditContext` and a method to get the member information from an expression.
+This component provides a base class for creating edit components. It provides access to the `CurrentEditContext`, the property being edited and any label text for the property.
 
 3. Create a new component in the `Shared` folder named `TextEdit.razor`:
 
 ```html
-@using System.Linq.Expressions
 @inherits EditBase
 
 <div class="form-group">
-    <label for="FirstName">First Name</label>
-    <InputText id="FirstName" class="form-control" @bind-Value="Text" />
-    <ValidationMessage For="@(() => For)" />
+    <label for="@Label">@Label</label>
+    <InputText id="@Label" class="form-control" @bind-Value="Text" />
+    <ValidationMessage For="@For" />
 </div>
 
 @code {
-    [Parameter]
-    public Expression<Func<string>>? For { get; set; }
-
-    private System.Reflection.PropertyInfo? _property;
-
     private string Text
     {
         get
         {
-            if (CurrentEditContext?.Model == null || _property == null) return string.Empty;
-            return _property.GetValue(CurrentEditContext.Model)?.ToString() ?? string.Empty;
+            if (CurrentEditContext?.Model == null || Property == null) return string.Empty;
+            return Property.GetValue(CurrentEditContext.Model)?.ToString() ?? string.Empty;
         }
         set
         {
-            if (CurrentEditContext?.Model == null || _property == null) return;
-            _property.SetValue(CurrentEditContext.Model, value);
+            if (CurrentEditContext?.Model == null || Property == null) return;
+            Property.SetValue(CurrentEditContext.Model, value);
         }
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (For is null)
-            throw new InvalidOperationException("For is required");
-        _property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
-        if (_property == null)
-            throw new InvalidOperationException("For must be a property");
     }
 }
 ```
 
-This component provides a text input for editing a string property. It uses the `EditBase` component to get the member information from the `For` parameter.
+This component provides a text input for editing a string property. It uses the `EditBase` component to get the property and label information.
 
 4. Create a new component in the `Shared` folder named `NumberEdit.razor`:
 
@@ -440,44 +449,30 @@ This component provides a text input for editing a string property. It uses the 
 @inherits EditBase
 
 <div class="form-group">
-    <label for="FirstName">First Name</label>
-    <InputNumber id="FirstName" class="form-control" @bind-Value="Value" />
-    <ValidationMessage For="@(() => For)" />
+    <label for="@Label">"@Label</label>
+    <InputNumber id="@Label" class="form-control" @bind-Value="Number" />
+    <ValidationMessage For="@For" />
 </div>
 
 @code {
-    [Parameter]
-    public Expression<Func<int>>? For { get; set; }
-
-    private System.Reflection.PropertyInfo? _property;
-
-    private int Value
+    private int Number
     {
         get
         {
-            if (CurrentEditContext?.Model == null || _property == null) return 0;
-            var value = _property.GetValue(CurrentEditContext.Model);
+            if (CurrentEditContext?.Model == null || Property == null) return 0;
+            var value = Property.GetValue(CurrentEditContext.Model);
             return (int)(value ?? 0);
         }
         set
         {
-            if (CurrentEditContext?.Model == null || _property == null) return;
-            _property.SetValue(CurrentEditContext.Model, value);
+            if (CurrentEditContext?.Model == null || Property == null) return;
+            Property.SetValue(CurrentEditContext.Model, value);
         }
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (For is null)
-            throw new InvalidOperationException("For is required");
-        _property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
-        if (_property == null)
-            throw new InvalidOperationException("For must be a property");
     }
 }
 ```
 
-This component provides a number input for editing an integer property. It uses the `EditBase` component to get the member information from the `For` parameter.
+This component provides a number input for editing an integer property. It uses the `EditBase` component to get the property and label information.
 
 5. Update the `EditPerson` component to use the new components:
 

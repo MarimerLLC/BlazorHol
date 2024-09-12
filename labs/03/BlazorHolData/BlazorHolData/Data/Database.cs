@@ -16,8 +16,10 @@ public class Person
 {
     public int Id { get; set; }
     [Required]
+    [Display(Name = "First Name")]
     public required string FirstName { get; set; }
     [Required]
+    [Display(Name = "Last Name")]
     public required string LastName { get; set; }
     public int Age { get; set; }
 }

@@ -1,38 +1,23 @@
-﻿@using System.Linq.Expressions
-@inherits EditBase
+﻿@inherits EditBase
 
 <div class="form-group">
-    <label for="FirstName">First Name</label>
-    <InputText id="FirstName" class="form-control" @bind-Value="Text" />
-    <ValidationMessage For="@(() => For)" />
+    <label for="@Label">@Label</label>
+    <InputText id="@Label" class="form-control" @bind-Value="Text" />
+    <ValidationMessage For="@For" />
 </div>
 
 @code {
-    [Parameter]
-    public Expression<Func<string>>? For { get; set; }
-
-    private System.Reflection.PropertyInfo? _property;
-
     private string Text
     {
         get
         {
-            if (CurrentEditContext?.Model == null || _property == null) return string.Empty;
-            return _property.GetValue(CurrentEditContext.Model)?.ToString() ?? string.Empty;
+            if (CurrentEditContext?.Model == null || Property == null) return string.Empty;
+            return Property.GetValue(CurrentEditContext.Model)?.ToString() ?? string.Empty;
         }
         set
         {
-            if (CurrentEditContext?.Model == null || _property == null) return;
-            _property.SetValue(CurrentEditContext.Model, value);
+            if (CurrentEditContext?.Model == null || Property == null) return;
+            Property.SetValue(CurrentEditContext.Model, value);
         }
-    }
-
-    protected override void OnParametersSet()
-    {
-        if (For is null)
-            throw new InvalidOperationException("For is required");
-        _property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
-        if (_property == null)
-            throw new InvalidOperationException("For must be a property");
     }
 }

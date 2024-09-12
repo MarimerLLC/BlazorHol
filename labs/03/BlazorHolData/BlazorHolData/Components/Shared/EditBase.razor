@@ -1,4 +1,6 @@
 ﻿@using System.Linq.Expressions
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
 @inherits ComponentBase
 
 @code {
@@ -8,6 +10,28 @@
     [CascadingParameter]
     protected EditContext? CurrentEditContext { get; set; }
 
+    [Parameter]
+    public Expression<Func<object>>? For { get; set; }
+
+    protected string? Label { get; set; }
+    protected System.Reflection.PropertyInfo? Property;
+
+    protected override void OnParametersSet()
+    {
+        if (For is null)
+            throw new InvalidOperationException("For is required");
+        Property = GetMemberInfo(For) as System.Reflection.PropertyInfo;
+        if (Property == null)
+            throw new InvalidOperationException("For must be a property");
+
+        Label = Property.Name;
+        var displayName = Property.GetCustomAttributes<DisplayAttribute>().ToList().FirstOrDefault();
+        if (displayName != null)
+        {
+            Label = displayName.Name;
+        }
+    }
+
     /// <summary>
     /// Gets the member info from the expression
     /// </summary>
@@ -15,7 +39,7 @@
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    protected System.Reflection.MemberInfo GetMemberInfo(Expression member)
+    private System.Reflection.MemberInfo GetMemberInfo(Expression member)
     {
         if (member == null) 
             throw new ArgumentNullException(nameof(member));
@@ -35,7 +59,7 @@
         }
 
         if (memberExpr == null) 
-            throw new ArgumentException("Not a member access", nameof(member));
+            throw new ArgumentException("Not a member expression", nameof(member));
 
         return memberExpr.Member;
     }
