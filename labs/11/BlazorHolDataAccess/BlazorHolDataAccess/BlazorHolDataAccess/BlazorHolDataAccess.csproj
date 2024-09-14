@@ -10,8 +10,11 @@
       <ProjectReference Include="..\BlazorHolDataAccess.Client\BlazorHolDataAccess.Client.csproj" />
       <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
       <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.8" />
-      <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.8" />
       <PackageReference Include="System.Text.Json" Version="8.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>

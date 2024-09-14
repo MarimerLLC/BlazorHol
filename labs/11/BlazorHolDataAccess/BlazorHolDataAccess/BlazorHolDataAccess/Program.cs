@@ -1,7 +1,6 @@
 using BlazorHolDataAccess.Client.Pages;
 using BlazorHolDataAccess.Components;
 using BlazorHolDataAccess.Data;
-using Microsoft.Data.Sqlite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,15 +9,6 @@ builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
-
-builder.Services.AddTransient<SqliteConnection>(sp =>
-{
-    var connection = new SqliteConnection("Data Source=BlazorHolDataAccess.db");
-    connection.Open();
-    return connection;
-});
-builder.Services.AddScoped<Database>();
-builder.Services.AddScoped<IPersonDal, PersonDal>();
 
 var app = builder.Build();
 
