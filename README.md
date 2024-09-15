@@ -102,7 +102,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. Blazor MAUI Hybrid
       1. Blazor Mobile
       1. Blazor Desktop
-   1. (LAB) MAUI Hybrid App
+   1. (LAB 15) MAUI Hybrid App
    1. Authentication in MAUI
    1. (LAB) Authentication in MAUI
    1. Blazor PWA
