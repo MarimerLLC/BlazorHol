@@ -1,0 +1,21 @@
+﻿@page "/"
+
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<canvas id="myChart" width="400" height="400"></canvas>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("createChart", "myChart");
+        }
+    }
+}

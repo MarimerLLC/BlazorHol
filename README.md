@@ -85,17 +85,20 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
       1. WebAssembly data access via API (later)
       1. Use dependency injection for connections/transactions
       1. Formalize data access layer for maintainability
-   1. (LAB 11) Data Access
+      1. (LAB 11) Data Access
+      1. Client-side data access
+         1. HttpClient
+      1. (LAB 12) Client-side Data Access
+   1. Blazor and JavaScript Interop
+   1. (LAB 13) Client-side Data Access
+1. Day 4
    1. Using Web APIs
       1. Using HttpClient
       1. Hosting Web APIs in Blazor Server
       1. Hosting Web APIs Elsewhere
          1. CORS
          1. Authentication with JWT
-   1. (LAB) Creating and Using APIs
-1. Day 4
-   1. Blazor and JavaScript Interop
-   1. (LAB) JavaScript Interop
+   1. (LAB 14) Creating and Using APIs
    1. Blazor MAUI Hybrid
       1. Blazor Mobile
       1. Blazor Desktop
@@ -104,4 +107,3 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
    1. (LAB) Authentication in MAUI
    1. Blazor PWA
    1. (LAB) Building a PWA
-   1. Uno and Avalonia
