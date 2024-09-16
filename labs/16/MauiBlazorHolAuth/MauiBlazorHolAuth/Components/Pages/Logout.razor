@@ -1,0 +1,15 @@
+﻿@page "/logout"
+
+@using System.Security.Claims
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override void OnInitialized()
+    {
+        ((CustomAuthenticationStateProvider)AuthenticationStateProvider).SetPrincipal(
+            new ClaimsPrincipal());
+        NavigationManager.NavigateTo("/");
+    }
+}

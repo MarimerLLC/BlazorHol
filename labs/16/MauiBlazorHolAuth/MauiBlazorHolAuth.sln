@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35309.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiBlazorHolAuth", "MauiBlazorHolAuth\MauiBlazorHolAuth.csproj", "{4780A256-5C35-45BC-87C8-C01681BD1EAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthServer", "AuthServer\AuthServer.csproj", "{44D4747F-D2FB-4B3E-B6E4-D58776B2D0E5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4780A256-5C35-45BC-87C8-C01681BD1EAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4780A256-5C35-45BC-87C8-C01681BD1EAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4780A256-5C35-45BC-87C8-C01681BD1EAB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4780A256-5C35-45BC-87C8-C01681BD1EAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4780A256-5C35-45BC-87C8-C01681BD1EAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4780A256-5C35-45BC-87C8-C01681BD1EAB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{44D4747F-D2FB-4B3E-B6E4-D58776B2D0E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44D4747F-D2FB-4B3E-B6E4-D58776B2D0E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44D4747F-D2FB-4B3E-B6E4-D58776B2D0E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44D4747F-D2FB-4B3E-B6E4-D58776B2D0E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E337FA0-BB66-4974-A5D0-6FAC7AC1EDA3}
+	EndGlobalSection
+EndGlobal
