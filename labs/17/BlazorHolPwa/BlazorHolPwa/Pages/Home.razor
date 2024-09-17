@@ -1,0 +1,52 @@
+﻿@page "/"
+
+@using System.ComponentModel.DataAnnotations
+@using Blazored.LocalStorage
+
+@inject ILocalStorageService LocalStorage
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+@if (myInfo != null)
+{
+    <EditForm Model="@myInfo" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <InputText @bind-Value="@myInfo.Name" />
+        <InputNumber @bind-Value="@myInfo.Age" />
+        <button type="submit">Submit</button>
+    </EditForm>
+}
+
+<p class="alert-info">@message</p>
+
+@code {
+    private MyInfo? myInfo = new MyInfo();
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        myInfo = await LocalStorage.GetItemAsync<MyInfo>("myInfo");
+        message = myInfo == null ? "No data found in local storage." : "Data loaded from local storage";
+        if (myInfo == null)
+        {
+            myInfo = new MyInfo();
+        }
+    }
+
+    private async void HandleValidSubmit()
+    {
+        await LocalStorage.SetItemAsync("myInfo", myInfo);
+        message = "Data saved to local storage.";
+    }
+
+    private class MyInfo
+    {
+        [Required]
+        public string Name { get; set; } = string.Empty;
+        public int Age { get; set; }
+    }
+}
