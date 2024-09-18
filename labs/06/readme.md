@@ -220,8 +220,6 @@ There's a lot going on in this code. Here's a summary:
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavigationManager
 
-<h3>Logout</h3>
-
 @code {
     protected override async Task OnInitializedAsync()
     {
