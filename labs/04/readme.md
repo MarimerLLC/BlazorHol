@@ -170,7 +170,7 @@ Welcome to your new app.
 
 3. Run the application
 4. Notice that the render mode is displayed on the home page, and it is ServerStatic.
-5. Open the 'Counter.razor' file in the server project.
+5. Open the 'Counter.razor' file in the client project.
 6. Inject the `RenderModeProvider` service into the file and use it in a `<p>` tag to display the render mode.
 5. Open the 'Weather.razor' file in the server project.
 6. Inject the `RenderModeProvider` service into the file and use it in a `<p>` tag to display the render mode.
