@@ -66,6 +66,13 @@ builder.Services.AddScoped(sp =>
 await builder.Build().RunAsync();
 ```
 
+3. Open the `wwwroot/index.html` file
+4. Add the following code near the bottom where other `<script>` tags exist:
+
+```html
+    <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
+```
+
 ## Update Routing
 
 1. Open the `App.razor` file
