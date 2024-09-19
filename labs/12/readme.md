@@ -98,7 +98,7 @@ public class PersonDal(HttpClient httpClient) : IPersonDal
     public async Task<int> AddPersonAsync(PersonEntity person)
     {
         var result = await httpClient.PutAsJsonAsync("api/person", person);
-        return await result.Content.ReadFromJsonAsync<int>();
+        return (await result.Content.ReadFromJsonAsync<PersonEntity>()).Id;
     }
 
     public Task DeletePersonAsync(int id)
