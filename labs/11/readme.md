@@ -24,7 +24,7 @@ builder.Services.AddTransient<SqliteConnection>(sp =>
 ```
 
 3. There is already a `Data` folder to your server project.
-4. Add a `DataAccess` class to the `Data` folder.
+4. Add a `Database` class to the `Data` folder.
 
 ```csharp
 using Microsoft.Data.Sqlite;
