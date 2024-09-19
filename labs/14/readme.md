@@ -58,7 +58,7 @@
 ## Using the API in the Blazor project
 
 1. Open the `Weather.razor` file in the `BlazorHolCallingApis` project
-2. Change the `WeatherForecastService` class to use the Web API
+2. Change the `Weather.razor` page to use the Web API
 
 ```csharp
     protected override async Task OnInitializedAsync()
