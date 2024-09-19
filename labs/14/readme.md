@@ -16,6 +16,8 @@
    - Interactivity location: Per page/component
    - Include sample pages: Checked
 8. Click Create
+9. Run the AppServer project from Visual Studio
+10. Make note of the port number: `https://localhost:????`
 
 ## Adding an AppServer project
 
@@ -68,6 +70,8 @@
         forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7285/weatherforecast");
     }
 ```
+
+> ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
 3. Run the application
 4. Navigate to the `Weather` page
@@ -177,6 +181,8 @@ If you watch closely, you'll see that the data is loaded twice! This is because 
     }
 ```
 
+> ⚠️ Change the port from `7285` to the port of _your_ AppServer project
+
 5. Add the following `Persist` method to the `@code` block
 
 ```csharp
@@ -272,6 +278,8 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
     forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7285/weatherforecast");
 ```
 
+> ⚠️ Change the port from `7285` to the port of _your_ AppServer project
+
 6. Supply the token in the `Weather.razor` file in the server project
 
 ```csharp
@@ -279,6 +287,8 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "MyBearerTokenValue");
     forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7285/weatherforecast");
 ```
+
+> ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
 7. Run the application
 8. Notice that the browser that should show the weather forecast data is not showing the data because it is not authorized
