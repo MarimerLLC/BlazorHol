@@ -31,7 +31,7 @@ using Microsoft.Data.Sqlite;
 
 namespace BlazorHolData.Data
 {
-    public class DataAccess(SqliteConnection Connection)
+    public class Database(SqliteConnection Connection)
     {
         public async Task InitializeDatabaseAsync()
         {
@@ -52,10 +52,10 @@ namespace BlazorHolData.Data
 
 This class contains the `InitializeDatabaseAsync` method that creates a `People` table in the database. This method will be called when the application starts.
 
-5. Register the `DataAccess` service in the `Program.cs` file:
+5. Register the `Database` service in the `Program.cs` file:
 
 ```csharp
-builder.Services.AddScoped<DataAccess>();
+builder.Services.AddScoped<Database>();
 ```
 
 6. Open the `Home.razor` file in the `Pages` folder of the server project.
