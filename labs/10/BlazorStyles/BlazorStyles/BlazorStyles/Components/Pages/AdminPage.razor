@@ -1,0 +1,12 @@
+﻿@page "/admin"
+@layout BlazorStyles.Components.Layout.AdminLayout
+
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>AdminPage</h3>
+
+@code {
+
+}
