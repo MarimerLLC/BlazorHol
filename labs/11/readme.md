@@ -29,7 +29,7 @@ builder.Services.AddTransient<SqliteConnection>(sp =>
 ```csharp
 using Microsoft.Data.Sqlite;
 
-namespace BlazorHolData.Data
+namespace BlazorHolDataAccess.Data
 {
     public class Database(SqliteConnection Connection)
     {
