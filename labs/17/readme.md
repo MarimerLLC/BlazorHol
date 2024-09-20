@@ -37,7 +37,7 @@
 
 ## Using Local Storage
 
-1. Add a reference to the `Blazord.LocalStorage` NuGet package (https://github.com/Blazored/LocalStorage)
+1. Add a reference to the `Blazored.LocalStorage` NuGet package (https://github.com/Blazored/LocalStorage)
 2. Register the `LocalStorageService` in the `Program.cs` file:
 
 ```csharp
