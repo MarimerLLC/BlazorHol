@@ -57,7 +57,7 @@ If you have an iOS device or Mac, you can run the application on those platforms
 
 The MAUI Community Toolkit is a collection of common elements for building MAUI applications. You can use the toolkit to add features to your application.
 
-1. Add a reference to the `Microsoft.Maui.CommunityToolkit` package
+1. Add a reference to the `CommunityToolkit.Maui` package
 2. Register the services in the `MauiProgram.cs` file
 
 ```csharp
