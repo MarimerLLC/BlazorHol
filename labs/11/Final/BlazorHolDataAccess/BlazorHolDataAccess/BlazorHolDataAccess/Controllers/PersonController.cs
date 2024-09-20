@@ -24,7 +24,9 @@ public class PersonController(IPersonDal personDal) : ControllerBase
     {
         if (person.Id == 0)
         {
-            return await Put(person);
+            var newId = await Put(person);
+            person.Id = newId;
+            return person;
         }
         else
         {
@@ -34,11 +36,9 @@ public class PersonController(IPersonDal personDal) : ControllerBase
     }
 
     [HttpPut]
-    public async Task<PersonEntity> Put(PersonEntity person)
+    public async Task<int> Put(PersonEntity person)
     {
-        var newId = await personDal.AddPersonAsync(person);
-        person.Id = newId;
-        return person;
+        return await personDal.AddPersonAsync(person);
     }
 
     [HttpDelete("{id}")]
