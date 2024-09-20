@@ -1,0 +1,87 @@
+﻿@page "/counter"
+@rendermode InteractiveAuto
+@implements IAsyncDisposable
+
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<div class="border border-secondary">
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+</div>
+<br />
+
+<div class="border border-secondary">
+<button id="alertBtn" class="btn btn-danger">Raise alert</button>
+</div>
+<br />
+
+<div class="border border-secondary">
+    <input type="number" @bind="price" />
+    <button class="btn btn-secondary" @onclick="CheckPrice">Check price</button>
+    <p>@Result</p>
+</div>
+<br />
+
+<div class="border border-secondary">
+    <button id="callbackBtn" class="btn btn-secondary">Trigger callback</button>
+    <br />
+    <p>Data from DotNet to JavaScript is in console window</p>
+</div>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private IJSObjectReference? module;
+    private IJSObjectReference? callbackModule;
+    private string Result { get; set; } = string.Empty;
+    private int price = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./AlertUser.js");
+            await module.InvokeVoidAsync("addHandlers");
+
+            callbackModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./CallDotNet.js");
+            await callbackModule.InvokeVoidAsync("addHandlers");
+        }
+    }
+
+    private async Task CheckPrice()
+    {
+        var stockSymbol = "MSFT";
+        var interopResult =
+            await JSRuntime.InvokeAsync<string>("displayAlert2", stockSymbol, price);
+        Result = $"Result of TickerChanged call for {stockSymbol} at " +
+            $"{price.ToString("c")}: {interopResult}";
+    }
+
+    [JSInvokable]
+    public static Task<string> GetStaticResult()
+    {
+        return Task.FromResult<string>($"This is from DotNet to JS");
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+        if (callbackModule is not null)
+        {
+            await callbackModule.DisposeAsync();
+        }
+    }
+}
