@@ -90,7 +90,7 @@ Join this information intense 4-day VSLive! hands-on deep dive and learn to use 
          1. HttpClient
       1. (LAB 12) Client-side Data Access
    1. Blazor and JavaScript Interop
-   1. (LAB 13) Client-side Data Access
+   1. (LAB 13) JavaScript Interop
 1. Day 4
    1. Using Web APIs
       1. Using HttpClient

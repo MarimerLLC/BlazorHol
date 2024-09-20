@@ -25,8 +25,8 @@ app.MapControllers();
 ## Implementing the Controller
 
 1. Add a new folder to the server project called `Controllers`
-1. Add a new class to the `Controllers` folder called `PeopleController`
-1. Add the following code to the `PeopleController` class:
+1. Add a new class to the `Controllers` folder called `PersonController`
+1. Add the following code to the `PersonController` class:
 
 ```csharp
 using BlazorHolDataAccess.Data;
@@ -98,7 +98,7 @@ public class PersonDal(HttpClient httpClient) : IPersonDal
     public async Task<int> AddPersonAsync(PersonEntity person)
     {
         var result = await httpClient.PutAsJsonAsync("api/person", person);
-        return await result.Content.ReadFromJsonAsync<int>();
+        return (await result.Content.ReadFromJsonAsync<PersonEntity>()).Id;
     }
 
     public Task DeletePersonAsync(int id)
