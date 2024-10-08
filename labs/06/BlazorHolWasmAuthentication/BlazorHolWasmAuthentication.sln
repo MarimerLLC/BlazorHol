@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35323.107
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorHolWasmAuthentication", "BlazorHolWasmAuthentication\BlazorHolWasmAuthentication\BlazorHolWasmAuthentication.csproj", "{23BF883A-E847-418A-B159-47F3F52262A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorHolWasmAuthentication.Client", "BlazorHolWasmAuthentication\BlazorHolWasmAuthentication.Client\BlazorHolWasmAuthentication.Client.csproj", "{441D1B8F-DEC7-42B4-BF99-6BA43387ECF3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23BF883A-E847-418A-B159-47F3F52262A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23BF883A-E847-418A-B159-47F3F52262A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23BF883A-E847-418A-B159-47F3F52262A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23BF883A-E847-418A-B159-47F3F52262A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441D1B8F-DEC7-42B4-BF99-6BA43387ECF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441D1B8F-DEC7-42B4-BF99-6BA43387ECF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441D1B8F-DEC7-42B4-BF99-6BA43387ECF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441D1B8F-DEC7-42B4-BF99-6BA43387ECF3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5E2B46B1-AEE9-4767-BBC3-A6F9F03F88CF}
+	EndGlobalSection
+EndGlobal

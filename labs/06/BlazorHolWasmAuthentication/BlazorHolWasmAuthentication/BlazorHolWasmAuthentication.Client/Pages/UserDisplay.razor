@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>User Information</h3>
+
+<AuthorizeView>
+    <Authorized>
+        @if (user == null)
+        {
+            <p>No principal</p>
+        }
+        else if (user.Identity == null)
+        {
+            <p>No identity</p>
+        }
+        else
+        {
+            <div>
+                <p><strong>Name:</strong> @user.Identity.Name</p>
+                <p><strong>Authenticated:</strong> @user.Identity.IsAuthenticated</p>
+                <p><strong>Authentication Type:</strong> @user.Identity.AuthenticationType</p>
+                <p><strong>Claims:</strong></p>
+                <ul>
+                    @foreach (var claim in user.Claims)
+                    {
+                        <li>@claim.Type: @claim.Value</li>
+                    }
+                </ul>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationStateProvider == null)
+        {
+            throw new InvalidOperationException($"{nameof(AuthenticationStateProvider)} has not been initialized.");
+        }
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+    }
+}
