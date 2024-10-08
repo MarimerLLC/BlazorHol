@@ -16,13 +16,13 @@
 
 <p role="status">Current count: @currentCount</p>
 
-@if (RenderModeProvider.GetRenderMode(this).IsInteractive())
+@if (renderMode.IsInteractive())
 {
     <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 }
 
 @code {
-    private string? renderMode;
+    private Marimer.Blazor.RenderMode.RenderMode renderMode;
     private string? sessionId;
     private string? sessionValue;
     private int currentCount = 0;
@@ -30,7 +30,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        renderMode = RenderModeProvider.GetRenderMode(this).ToString();
+        renderMode = RenderModeProvider.GetRenderMode(this);
         session = await SessionManager.GetSessionAsync();
         sessionId = session.SessionId;
         sessionValue = session["test"] as string;
@@ -41,9 +41,10 @@
         currentCount = int.Parse(session["count"]);
     }
 
-    private void IncrementCount()
+    private async Task IncrementCount()
     {
         currentCount++;
         session!["count"] = currentCount.ToString();
+        await SessionManager.UpdateSessionAsync(session);
     }
 }

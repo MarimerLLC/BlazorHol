@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace BlazorHolState.Server;
+﻿namespace BlazorHolState.Server;
 
 /// <summary>
 /// Dictionary containing per-user session objects, keyed
@@ -8,16 +6,15 @@ namespace BlazorHolState.Server;
 /// </summary>
 public class SessionManager(SessionIdManager sessionIdManager) : ISessionManager
 { 
-    private Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
+    private readonly Dictionary<string, Session> _sessions = [];
 
     public async Task<Session> GetSessionAsync()
     {
         var key = await sessionIdManager.GetSessionIdAsync();
         if (!_sessions.ContainsKey(key))
-            _sessions.Add(key, new Session());
+            _sessions.Add(key, []);
         var session = _sessions[key];
         session.SessionId = key;
-        var endTime = DateTime.Now + TimeSpan.FromSeconds(10);
         return session;
     }
 
@@ -37,8 +34,10 @@ public class SessionManager(SessionIdManager sessionIdManager) : ISessionManager
     /// </summary>
     /// <param name="newSession"></param>
     /// <param name="oldSession"></param>
-    private void Replace(Session newSession, Session oldSession)
+    private static void Replace(Session newSession, Session oldSession)
     {
+        if (ReferenceEquals(newSession, oldSession))
+            return;
         oldSession.Clear();
         foreach (var key in newSession.Keys)
             oldSession.Add(key, newSession[key]);
