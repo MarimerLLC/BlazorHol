@@ -1,18 +1,22 @@
 ﻿@page "/clientweather"
 @using System.Text.Json
 @using System.Net.Http.Headers
+@using Marimer.Blazor.RenderMode
 @rendermode InteractiveWebAssembly
 @implements IDisposable
 
 @inject PersistentComponentState ApplicationState
+@inject RenderModeProvider RenderModeProvider
 
 <PageTitle>Client Weather</PageTitle>
 
 <h3>Client Weather</h3>
 
+<div class="text-info">@RenderModeProvider.GetRenderMode(this)</div>
+
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
+@if (forecasts == null || renderMode.IsServer())
 {
     <p><em>Loading...</em></p>
 }
@@ -44,20 +48,30 @@ else
 @code {
     private WeatherForecast[]? forecasts;
     private PersistingComponentStateSubscription _subscription;
+    private Marimer.Blazor.RenderMode.RenderMode renderMode;
 
     protected override async Task OnInitializedAsync()
     {
-        _subscription = ApplicationState.RegisterOnPersisting(Persist);
-
-        var foundInState = ApplicationState
-            .TryTakeFromJson<WeatherForecast[]>("forecasts", out forecasts);
-
-        if (!foundInState)
+        renderMode = RenderModeProvider.GetRenderMode(this);
+        if (renderMode.IsInteractive())
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "MyBearerTokenValue");
             forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7285/weatherforecast");
         }
+
+
+        // _subscription = ApplicationState.RegisterOnPersisting(Persist);
+
+        // var foundInState = ApplicationState
+        //     .TryTakeFromJson<WeatherForecast[]>("forecasts", out forecasts);
+
+        // if (!foundInState)
+        // {
+        //     var httpClient = new HttpClient();
+        //     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "MyBearerTokenValue");
+        //     forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7285/weatherforecast");
+        // }
     }
 
     private Task Persist()

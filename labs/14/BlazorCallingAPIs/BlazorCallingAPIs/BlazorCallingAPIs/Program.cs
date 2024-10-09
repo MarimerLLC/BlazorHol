@@ -1,5 +1,6 @@
 using BlazorCallingAPIs.Client.Pages;
 using BlazorCallingAPIs.Components;
+using Marimer.Blazor.RenderMode;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddRenderModeDetection();
 
 var app = builder.Build();
 
