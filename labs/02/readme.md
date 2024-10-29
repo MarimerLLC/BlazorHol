@@ -1,4 +1,4 @@
-# Creating Razor Compoonents
+# Creating Razor Components
 
 ## Composing Razor Components
 
