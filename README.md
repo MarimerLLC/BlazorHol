@@ -1,5 +1,13 @@
 # Blazor Hands on Lab
 
+## Next Event
+
+The next Blazor training event is May 5, 2025.
+
+* https://vslive.com/events/training-seminars/2025/may5/home.aspx
+
+## Summary
+
 This is the Blazor HOL content for the VS Live "Blazor for Web, Desktop, and Mobile" seminar.
 
 * [Requirements before attending](/docs/requirements.md)
