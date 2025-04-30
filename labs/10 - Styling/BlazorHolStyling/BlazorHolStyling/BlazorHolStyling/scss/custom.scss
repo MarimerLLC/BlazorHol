@@ -1,0 +1,26 @@
+/* Colors */
+$primary: green;
+$secondary: #70af6d;
+/*$success: $green !default;
+$info: $cyan !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $gray-100 !default;
+$dark: $gray-900 !default;
+*/
+$link-color: $primary;
+
+@import url('../lib/open-iconic/font/css/open-iconic-bootstrap.min.css');
+/* Import either all of Bootstrap, or specific files after overriding above*/
+@import "bootstrap/scss/bootstrap.scss";
+/*@import "bootstrap/scss/_functions.scss";
+@import "bootstrap/scss/_variables.scss";
+@import "bootstrap/scss/_mixins.scss";
+@import "bootstrap/scss/_nav.scss";
+@import "bootstrap/scss/_navbar.scss";*/
+
+.btn-primary, .btn-primary:active, .btn-primary:focus, .btn-primary:checked {
+  background-color: $primary;
+  border-color: $gray-100;
+  color: white;
+}
