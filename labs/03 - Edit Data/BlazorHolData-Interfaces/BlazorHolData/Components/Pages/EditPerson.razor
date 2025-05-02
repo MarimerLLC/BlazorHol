@@ -1,0 +1,46 @@
+﻿@page "/editperson"
+@page "/editperson/{id:int}"
+
+@using BlazorHolData.Data
+@using BlazorHolData.Components.Shared
+
+@inject NavigationManager NavigationManager
+@inject IPersonDal dal
+
+<h3>EditPerson</h3>
+
+@if (Person == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@Person" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <TextEdit For="() => Person.FirstName" />
+        <TextEdit For="() => Person.LastName" />
+        <NumberEdit For="() => Person.Age" />
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Person? Person { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Person = await dal.GetPerson(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        ArgumentNullException.ThrowIfNull(Person, nameof(Person));
+        var result = await dal.SavePerson(Person);
+        NavigationManager.NavigateTo("/");
+    }
+}

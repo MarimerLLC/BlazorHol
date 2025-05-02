@@ -5,7 +5,6 @@
 @using BlazorHolData.Components.Shared
 
 @inject NavigationManager NavigationManager
-@inject IPersonDal dal
 
 <h3>EditPerson</h3>
 
@@ -32,14 +31,38 @@ else
 
     private Person? Person { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        Person = await dal.GetPerson(Id);
+        if (Id > 0)
+        {
+            Person = Data.Database.People.Where(p => p.Id == Id).Select(_ => new Person
+                { Id = _.Id, FirstName = _.FirstName, LastName = _.LastName, Age = _.Age }).First();
+        }
+        else
+        {
+            Person = new Person { Id = -1,  FirstName = string.Empty, LastName = string.Empty };
+        }
     }
 
-    private async Task HandleValidSubmit()
+    private void HandleValidSubmit()
     {
-        var result = await dal.SavePerson(Person);
+        if (Person == null) return;
+        if (Person.Id > 0)
+        {
+            var person = Data.Database.People.Where(p => p.Id == Id).FirstOrDefault();
+            if (person != null)
+            {
+                person.FirstName = Person.FirstName;
+                person.LastName = Person.LastName;
+                person.Age = Person.Age;
+            }
+        }
+        else
+        {
+            var newId = Data.Database.People.Max(p => p.Id) + 1;
+            Person.Id = newId;
+            Data.Database.People.Add(Person);
+        }
         NavigationManager.NavigateTo("/");
     }
 }

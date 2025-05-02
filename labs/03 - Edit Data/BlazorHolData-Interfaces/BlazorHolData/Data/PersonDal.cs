@@ -19,16 +19,14 @@
 
         public Task<Person> SavePerson(Person person)
         {
-            if (person == null) return Task.FromResult(null);
+            ArgumentNullException.ThrowIfNull(person);
             if (person.Id > 0)
             {
-                var person = Data.Database.People.Where(p => p.Id == Id).FirstOrDefault();
-                if (person != null)
-                {
-                    person.FirstName = person.FirstName;
-                    person.LastName = person.LastName;
-                    person.Age = person.Age;
-                }
+                var existingPerson = Data.Database.People.Where(p => p.Id == person.Id).First();
+                existingPerson.FirstName = person.FirstName;
+                existingPerson.LastName = person.LastName;
+                existingPerson.Age = person.Age;
+                person = existingPerson;
             }
             else
             {

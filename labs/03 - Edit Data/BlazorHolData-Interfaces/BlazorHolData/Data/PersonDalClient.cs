@@ -12,6 +12,7 @@ namespace BlazorHolData.Data
         public async Task<Person> SavePerson(Person person)
         {
             var response = await client.PostAsJsonAsync<Person>("api/person", person);
+            return person;
         }
     }
 }

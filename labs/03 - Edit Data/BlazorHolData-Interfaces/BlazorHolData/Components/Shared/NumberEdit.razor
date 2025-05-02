@@ -1,0 +1,25 @@
+﻿@using System.Linq.Expressions
+@inherits EditBase
+
+<div class="form-group">
+    <label for="@Label">@Label</label>
+    <InputNumber id="@Label" class="form-control" @bind-Value="Number" />
+    <ValidationMessage For="@For" />
+</div>
+
+@code {
+    private int Number
+    {
+        get
+        {
+            if (CurrentEditContext?.Model == null || Property == null) return 0;
+            var value = Property.GetValue(CurrentEditContext.Model);
+            return (int)(value ?? 0);
+        }
+        set
+        {
+            if (CurrentEditContext?.Model == null || Property == null) return;
+            Property.SetValue(CurrentEditContext.Model, value);
+        }
+    }
+}
