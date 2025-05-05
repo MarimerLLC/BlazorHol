@@ -1,0 +1,23 @@
+﻿@inherits EditBase
+
+<div class="form-group">
+    <label for="@Label">@Label</label>
+    <InputText id="@Label" class="form-control" @bind-Value="Text" />
+    <ValidationMessage For="@For" />
+</div>
+
+@code {
+    private string Text
+    {
+        get
+        {
+            if (CurrentEditContext?.Model == null || Property == null) return string.Empty;
+            return Property.GetValue(CurrentEditContext.Model)?.ToString() ?? string.Empty;
+        }
+        set
+        {
+            if (CurrentEditContext?.Model == null || Property == null) return;
+            Property.SetValue(CurrentEditContext.Model, value);
+        }
+    }
+}

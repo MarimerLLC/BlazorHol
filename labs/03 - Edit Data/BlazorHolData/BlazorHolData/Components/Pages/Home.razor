@@ -1,0 +1,27 @@
+﻿@page "/"
+@using BlazorHolData.Data
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div>
+    <a href="EditPerson">Add new person</a>
+</div>
+
+<div class="grid">
+    <QuickGrid Items="@Data.Database.People.AsQueryable()">
+        <PropertyColumn Property="@(_ => _.Id)" />
+        <PropertyColumn Property="@(_ => _.FirstName)" Sortable="true" />
+        <PropertyColumn Property="@(_ => _.LastName)" Sortable="true" />
+        <PropertyColumn Property="@(_ => _.Age)" Sortable="true" />
+        <TemplateColumn>
+            <a href="EditPerson/@context.Id">Edit</a>
+        </TemplateColumn>
+        <TemplateColumn>
+            <a href="RemovePerson/@context.Id">Remove</a>
+        </TemplateColumn>
+    </QuickGrid>
+</div>
