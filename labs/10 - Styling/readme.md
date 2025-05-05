@@ -6,7 +6,7 @@
 2. Click on Create a new project
 3. Select Blazor Web App
 4. Click Next
-5. Enter the project name: `BlazorHolState`
+5. Enter the project name: `BlazorHolStyling`
 6. Click Next
 7. Use the following options:
    - Framework: .NET 8.0
