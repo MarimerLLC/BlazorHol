@@ -59,7 +59,11 @@ else
         }
         else
         {
-            var newId = Data.Database.People.Max(p => p.Id) + 1;
+            int newId;
+            if (Data.Database.People.Count() == 0)
+                newId = 1;
+            else
+                newId = Data.Database.People.Max(p => p.Id) + 1;
             Person.Id = newId;
             Data.Database.People.Add(Person);
         }

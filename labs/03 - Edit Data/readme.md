@@ -252,7 +252,10 @@ Now this page can be accessed by navigating to `/editperson` or `/editperson/0`.
         }
         else
         {
-            var newId = Data.Database.People.Max(p => p.Id) + 1;
+            if (Data.Database.People.Count() == 0)
+                newId = 1;
+            else
+                newId = Data.Database.People.Max(p => p.Id) + 1;
             Person.Id = newId;
             Data.Database.People.Add(Person);
         }
