@@ -69,12 +69,11 @@ public class Session : Dictionary<string, string>
     /// <summary>
     /// Gets or sets the Session Id value.
     /// </summary>
-    public string SessionId { get; set; } = string.Empty;
-    public bool IsCheckedOut { get; set; }
+    public string SessionId { get => this["__sessionId"]; set => this["__sessionId"] = value; }
 }
 ```
 
-This type maintains the session data for the user. It is a dictionary of string values that can be serialized to JSON. The `SessionId` property is a unique identifier for the session. The `IsCheckedOut` property is a flag that indicates whether the user has checked out the dictionary to the WebAssembly client.
+This type maintains the session data for the user. It is a dictionary of string values that can be serialized to JSON. The `SessionId` property is a unique identifier for the session. 
 
 2. In the _client_ project add an `ISessionManager` interface:
 
@@ -102,16 +101,16 @@ public class SessionIdManager(IHttpContextAccessor httpContextAccessor)
 {
     private readonly IHttpContextAccessor HttpContextAccessor = httpContextAccessor;
 
-    public Task<string?> GetSessionId()
+    public Task<string> GetSessionIdAsync()
     {
         var httpContext = HttpContextAccessor.HttpContext;
-        string? result;
+        string result;
 
         if (httpContext != null)
         {
             if (httpContext.Request.Cookies.ContainsKey("sessionId"))
             {
-                result = httpContext.Request.Cookies["sessionId"];
+                result = httpContext.Request.Cookies["sessionId"]!;
             }
             else
             {
@@ -133,49 +132,33 @@ This service is responsible for managing the session id for the user. It uses th
 2. In the `Services` folder, add a new class called `SessionManager`:
 
 ```csharp
-using System.Threading;
-
 namespace BlazorHolState.Server;
 
 /// <summary>
 /// Dictionary containing per-user session objects, keyed
 /// by sessionId.
 /// </summary>
-public class SessionManager : ISessionManager
+public class SessionManager(SessionIdManager sessionIdManager) : ISessionManager
 { 
-    private Dictionary<string, Session> _sessions = new Dictionary<string, Session>();
-    private readonly ISessionIdManager _sessionIdManager;
+    private readonly Dictionary<string, Session> _sessions = [];
 
-    public SessionManager(ISessionIdManager sessionIdManager)
+    public async Task<Session> GetSessionAsync()
     {
-        _sessionIdManager = sessionIdManager;
-    }
-
-    public async Task<Session> GetSession()
-    {
-        var key = await _sessionIdManager.GetSessionId();
+        var key = await sessionIdManager.GetSessionIdAsync();
         if (!_sessions.ContainsKey(key))
-            _sessions.Add(key, new Session());
+            _sessions.Add(key, []);
         var session = _sessions[key];
-        var endTime = DateTime.Now + TimeSpan.FromSeconds(10);
-        while (session.IsCheckedOut)
-        {
-            if (DateTime.Now > endTime)
-                throw new TimeoutException();
-            await Task.Delay(5);
-        }
-
+        session.SessionId = key;
         return session;
     }
 
-    public async Task UpdateSession(Session session)
+    public async Task UpdateSessionAsync(Session session)
     {
         if (session != null)
         {
-            var key = await _sessionIdManager.GetSessionId();
+            var key = await sessionIdManager.GetSessionIdAsync();
             session.SessionId = key;
             Replace(session, _sessions[key]);
-            _sessions[key].IsCheckedOut = false;
         }
     }
 
@@ -185,8 +168,10 @@ public class SessionManager : ISessionManager
     /// </summary>
     /// <param name="newSession"></param>
     /// <param name="oldSession"></param>
-    private void Replace(Session newSession, Session oldSession)
+    private static void Replace(Session newSession, Session oldSession)
     {
+        if (ReferenceEquals(newSession, oldSession))
+            return;
         oldSession.Clear();
         foreach (var key in newSession.Keys)
             oldSession.Add(key, newSession[key]);
@@ -199,7 +184,15 @@ This service manages the session data for the user. It uses the `ISessionIdManag
 3. Register the services in the _server_ `Program.cs` file:
 
 ```csharp
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSingleton(typeof(ISessionManager), typeof(SessionManager));
+builder.Services.AddTransient(typeof(SessionIdManager), typeof(SessionIdManager));
 ```
+
+The `ISessionManager` service is a singleton, so there is one instance for the entire server. This stores all the session state for all users on the server.
+
+The `SessionIdManager` is transient, meaning that an instance is created whenever one is needed. This way it will return per-user values.
 
 ## Create the Client Implementation
 
@@ -207,6 +200,31 @@ This service manages the session data for the user. It uses the `ISessionIdManag
 1. In the `Services` folder, add a new class called `SessionManager`:
 
 ```csharp
+using System.Net.Http.Json;
+
+namespace BlazorHolState.Client;
+
+/// <summary>
+/// Session objects for the current user
+/// </summary>
+public class SessionManager(HttpClient client) : ISessionManager
+{
+    private Session? _session;
+
+    public async Task<Session> GetSessionAsync()
+    {
+        _session = await client.GetFromJsonAsync<Session>("state");
+        if (_session == null)
+            throw new InvalidOperationException("Session not found");
+        return _session;
+    }
+
+    public async Task UpdateSessionAsync(Session session)
+    {
+        await client.PutAsJsonAsync<Session>("state", session);
+        _session = session;
+    }
+}
 ```
 
 This service is responsible for managing the session data for the user. It uses the `HttpClient` to communicate with the server to get and update the session data.
@@ -214,4 +232,177 @@ This service is responsible for managing the session data for the user. It uses 
 2. Register the services in the _client_ `Program.cs` file:
 
 ```csharp
+builder.Services.AddTransient<HttpClient>(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+builder.Services.AddSingleton(typeof(ISessionManager), typeof(SessionManager));
 ```
+
+In the client WebAssembly environment there is only ever the one user of the browser, so this `ISessionManager` service is a singleton so it is available for the current user.
+
+## Using the State Manager
+
+Now that the app has a basic state management implementation, the next step is to use it in the various components of the app.
+
+### Home Page
+
+Open the `Home.razor` file in the server project and inject a couple of services:
+
+```csharp
+@inject Marimer.Blazor.RenderMode.RenderModeProvider RenderModeProvider
+@inject ISessionManager SessionManager
+```
+
+In the code block, use the services to initialize some fields with information about the render mode, session id, and a session value:
+
+```csharp
+    private string? renderMode;
+    private string? sessionId;
+    private string? sessionValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        renderMode = RenderModeProvider.GetRenderMode(this).ToString();
+        var session = await SessionManager.GetSessionAsync();
+        sessionId = session.SessionId;
+        if (!session.ContainsKey("test"))
+            session["test"] = Guid.NewGuid().ToString();
+        sessionValue = session["test"] as string;
+    }
+```
+
+In the markup part of the page, display the values:
+
+```html
+<p class="alert-info">Render mode: @renderMode</p>
+<p class="alert-warning">Session id: @sessionId</p>
+<p class="alert-primary">Session value: @sessionValue</p>
+```
+
+### Weather Page
+
+Repeat in the `Weather.razor` file.
+
+Inject the services:
+
+```csharp
+@inject Marimer.Blazor.RenderMode.RenderModeProvider RenderModeProvider
+@inject ISessionManager SessionManager
+```
+
+Define and set the fields in the code block:
+
+```csharp
+    private string? renderMode;
+    private string? sessionId;
+    private string? sessionValue;
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        renderMode = RenderModeProvider.GetRenderMode(this).ToString();
+        var session = await SessionManager.GetSessionAsync();
+        sessionId = session.SessionId;
+        sessionValue = session["test"] as string;
+
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+        ...
+```
+
+Display the field values in the markup:
+
+```html
+<p class="alert-info">Render mode: @renderMode</p>
+<p class="alert-warning">Session id: @sessionId</p>
+<p class="alert-primary">Session value: @sessionValue</p>
+```
+
+### Counter Page
+
+The `Counter.razor` file is in the client project, and this one will require a bit more work, because you can use session state to maintain the current count value from this page.
+
+Normally, any time you leave and return to the Counter page, the current value resets to 0. Using the session state concept, this value can be maintained in memory by the app.
+
+First, inject the services into the component:
+
+```csharp
+@using Marimer.Blazor.RenderMode
+
+@inject RenderModeProvider RenderModeProvider
+@inject ISessionManager SessionManager
+```
+
+Then define and initialize the same fields as in the other components:
+
+```csharp
+    private Marimer.Blazor.RenderMode.RenderMode renderMode;
+    private string? sessionId;
+    private string? sessionValue;
+    private int currentCount = 0;
+    Session? session;
+
+    protected override async Task OnInitializedAsync()
+    {
+        renderMode = RenderModeProvider.GetRenderMode(this);
+        session = await SessionManager.GetSessionAsync();
+        sessionId = session.SessionId;
+        ...
+```
+
+And display those fields in the markup:
+
+```html
+<p class="alert-info">Render mode: @renderMode</p>
+<p class="alert-warning">Session id: @sessionId</p>
+<p class="alert-primary">Session value: @sessionValue</p>
+```
+
+With that done, you can now add code to maintain the `currentCount` value in session state.
+
+In the `OnInitializedAsync` method, as the component is loaded, get the value (if any) from session state:
+
+```csharp
+    protected override async Task OnInitializedAsync()
+    {
+        renderMode = RenderModeProvider.GetRenderMode(this);
+        session = await SessionManager.GetSessionAsync();
+        sessionId = session.SessionId;
+        sessionValue = session["test"] as string;
+        if (!session.ContainsKey("count"))
+        {
+            session["count"] = "0";
+        }
+        currentCount = int.Parse(session["count"]);
+    }
+```
+
+Then in the `IncrementCount` method, store the incremented value into session state:
+
+```csharp
+    private async Task IncrementCount()
+    {
+        currentCount++;
+        session!["count"] = currentCount.ToString();
+        await SessionManager.UpdateSessionAsync(session);
+    }
+```
+
+Because this method mutates the session state dictionary, the `UpdateSessionAsync` method is called to ensure those changes are saved on the server. This only does work if the code is running in WebAssembly. On the server it does nothing.
+
+In WebAssembly though, it is necessary to send the copy of the mutated state data to the server so the server stays in sync with the client. This way, if the user navigates to some server static or server interactive page, any state changed on the WebAssembly client will be consistently available to all server-side code as well.
+
+## Run the App
+
+Press F5 or ctrl-F5 to run the app.
+
+You should see values on the home page indicating the session id and a unique session value - both guids.
+
+Navigate to the weather page, and the values should be the same.
+
+Navigate to the counter page. Notice that the values are the same, and the page should be in server interactive mode.
+
+Click the button to increment the count.
+
+Then click to the home page to switch into server static render mode (releasing the SignalR connection), and click back to the counter page.
+
+Now the counter page should be in WebAssembly interactive mode, and the values should still be consistent - including the current counter value.

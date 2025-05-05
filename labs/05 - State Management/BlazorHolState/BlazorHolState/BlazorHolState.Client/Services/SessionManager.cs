@@ -3,8 +3,7 @@
 namespace BlazorHolState.Client;
 
 /// <summary>
-/// Dictionary containing per-user session objects, keyed
-/// by sessionId.
+/// Session objects for the current user
 /// </summary>
 public class SessionManager(HttpClient client) : ISessionManager
 {
