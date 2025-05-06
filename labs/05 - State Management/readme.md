@@ -82,8 +82,8 @@ namespace BlazorHolState;
 
 public interface ISessionManager
 {
-    Task<Session> GetSession();
-    Task UpdateSession(Session session);
+    Task<Session> GetSessionAsync();
+    Task UpdateSessionAsync(Session session);
 }
 ```
 
