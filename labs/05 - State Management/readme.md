@@ -249,7 +249,7 @@ In the `Controllers` directory, add a `StateController.cs` file:
 using BlazorHolState;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi1.Controllers
+namespace BlazorHolState.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -278,6 +278,20 @@ namespace WebApi1.Controllers
         }
     }
 }
+```
+
+In the `Program.cs` file of the web server project, add the code to enable controllers.
+
+First, when registering services near the top of the file:
+
+```csharp
+builder.Services.AddControllers();
+```
+
+Second, right before the call to `MapControllers` add this:
+
+```csharp
+app.MapControllers();
 ```
 
 ## Using the State Manager
