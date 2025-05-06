@@ -288,11 +288,13 @@ First, when registering services near the top of the file:
 builder.Services.AddControllers();
 ```
 
-Second, right before the call to `MapControllers` add this:
+Second, right before the call to `MapRazorComponents` add this:
 
 ```csharp
 app.MapControllers();
 ```
+
+This controller is used by the WebAssembly implementation of `ISessionManager` to get and set the current user's session dictionary on the server.
 
 ## Using the State Manager
 
