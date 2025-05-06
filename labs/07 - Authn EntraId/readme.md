@@ -66,6 +66,12 @@ builder.Services.AddScoped(sp =>
 await builder.Build().RunAsync();
 ```
 
+In `_Imports.razor` file, add the following code:
+
+```razor
+@using Microsoft.AspNetCore.Components.Authorization
+```
+
 3. Open the `wwwroot/index.html` file
 4. Add the following code near the bottom where other `<script>` tags exist:
 
