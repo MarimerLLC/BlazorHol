@@ -109,13 +109,13 @@ public class HelloWorldCsharpTests : BunitTestContext
 2. Replace the `CounterCSharpTests` class with the following code:
 
 ```csharp
-    cut.Find("p").MarkupMatches(@<p role="status">Current count: 0</p>);
+    cut.Find("p").MarkupMatches("<p role=\"status\">Current count: 0</p>");
 ```
 
 and
 
 ```csharp
-    cut.Find("p").MarkupMatches(@<p role="status">Current count: 1</p>);
+    cut.Find("p").MarkupMatches("<p role=\"status\">Current count: 1</p>");
 ```
 
 The `role="status"` attribute is added to the `p` elements to make the test pass. Microsoft has changed the Blazor template more recently than the bUnit templates have changed.
