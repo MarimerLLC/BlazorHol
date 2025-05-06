@@ -239,6 +239,47 @@ builder.Services.AddSingleton(typeof(ISessionManager), typeof(SessionManager));
 
 In the client WebAssembly environment there is only ever the one user of the browser, so this `ISessionManager` service is a singleton so it is available for the current user.
 
+## Add the Server Controller
+
+In the server project, add a `Controllers` directory to the project.
+
+In the `Controllers` directory, add a `StateController.cs` file:
+
+```csharp
+using BlazorHolState;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi1.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class StateController : ControllerBase
+    {
+        private readonly ILogger<StateController> _logger;
+        private readonly ISessionManager _sessionList;
+
+        public StateController(ISessionManager sessionList, ILogger<StateController> logger)
+        {
+            _logger = logger;
+            _sessionList = sessionList;
+        }
+
+        [HttpGet(Name = "GetState")]
+        public async Task<Session> Get()
+        {
+            var session = await _sessionList.GetSessionAsync();
+            return session;
+        }
+
+        [HttpPut(Name = "UpdateState")]
+        public async Task Put(Session updatedSession)
+        {
+            await _sessionList.UpdateSessionAsync(updatedSession);
+        }
+    }
+}
+```
+
 ## Using the State Manager
 
 Now that the app has a basic state management implementation, the next step is to use it in the various components of the app.
