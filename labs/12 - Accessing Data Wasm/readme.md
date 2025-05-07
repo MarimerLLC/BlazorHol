@@ -98,7 +98,7 @@ public class PersonDal(HttpClient httpClient) : IPersonDal
     public async Task<int> AddPersonAsync(PersonEntity person)
     {
         var result = await httpClient.PutAsJsonAsync("api/person", person);
-        return (await result.Content.ReadFromJsonAsync<PersonEntity>()).Id;
+        return await result.Content.ReadFromJsonAsync<int>();
     }
 
     public Task DeletePersonAsync(int id)
@@ -146,7 +146,7 @@ An `HttpClient` service is also registered with the dependency injection contain
 
 ## Make the Edit Pages Run in WebAssembly
 
-1. Open the `EditPerson.razor` file in the `Pages` folder of the client project
+1. Open the `PersonEdit.razor` file in the `Pages` folder of the client project
 1. Change the `@renderMode` of the page
 
 ```csharp
