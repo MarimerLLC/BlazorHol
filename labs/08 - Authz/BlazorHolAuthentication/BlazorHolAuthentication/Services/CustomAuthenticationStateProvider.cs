@@ -10,17 +10,14 @@ namespace BlazorHolAuthentication.Services
 
         public CustomAuthenticationStateProvider()
         {
-            SetAuthenticationState(Task.FromResult(new AuthenticationState(anonymous)));
-        }
-
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            return base.GetAuthenticationStateAsync();
+            SetAuthenticationState(Task.FromResult(
+                new AuthenticationState(anonymous)));
         }
 
         public void Logout()
         {
-            var authenticationState = Task.FromResult(new AuthenticationState(anonymous));
+            var authenticationState = Task.FromResult(
+                new AuthenticationState(anonymous));
             SetAuthenticationState(authenticationState);
             NotifyAuthenticationStateChanged(authenticationState);
         }
