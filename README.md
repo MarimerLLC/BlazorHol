@@ -2,9 +2,7 @@
 
 ## Next Event
 
-The next Blazor training event is May 5, 2025.
-
-* https://vslive.com/events/training-seminars/2025/may5/home.aspx
+To be scheduled.
 
 ## Summary
 
