@@ -226,6 +226,8 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 }
 ```
 
+> ⚠️ You may need to change the port number in the URL to match the port number of your API server.
+
 8. Add a `Logout` page to the `Pages` folder:
 
 ```html
