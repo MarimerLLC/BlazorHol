@@ -1,7 +1,7 @@
 ﻿using BlazorHolState;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi1.Controllers
+namespace BlazorHolState.Controllers
 {
     [ApiController]
     [Route("[controller]")]

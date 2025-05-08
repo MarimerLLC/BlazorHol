@@ -1,6 +1,10 @@
 using BlazorHolAuthentication.Components;
+using BlazorHolAuthentication.Policies;
 using BlazorHolAuthentication.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddSingleton<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("IsAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"))
+    .AddPolicy("IsInEU", policy =>
+        policy.Requirements.Add(new EuRequirement()));
+
+builder.Services.AddSingleton<IAuthorizationHandler, EuHandler>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
   .AddCookie();

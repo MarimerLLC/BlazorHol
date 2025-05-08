@@ -6,6 +6,15 @@
 
 <p>This component demonstrates showing data.</p>
 
+<AuthorizeView Policy="IsInEU">
+    <Authorized>
+        <p>You are EUROPEAN.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not European.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
 @if (forecasts == null)
 {
     <p><em>Loading...</em></p>

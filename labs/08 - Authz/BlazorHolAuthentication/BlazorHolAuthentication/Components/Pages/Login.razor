@@ -13,22 +13,22 @@
 <h1>Login</h1>
 
 <div>
-  <EditForm Model="userInfo" OnSubmit="LoginUser" FormName="loginform">
-      <div>
-          <label>Username</label>
-          <InputText @bind-Value="userInfo.Username" />
-      </div>
-      <div>
-          <label>Password</label>
-          <InputText type="password" @bind-Value="userInfo.Password" />
-      </div>
-      <button>Login</button>
-  </EditForm>
+    <EditForm Model="userInfo" OnSubmit="LoginUser" FormName="loginform">
+        <div>
+            <label>Username</label>
+            <InputText @bind-Value="userInfo.Username" />
+        </div>
+        <div>
+            <label>Password</label>
+            <InputText type="password" @bind-Value="userInfo.Password" />
+        </div>
+        <button>Login</button>
+    </EditForm>
 </div>
 
 <div style="background-color:lightgray">
-  <p>User identities:</p>
-  <p>admin, admin</p>
+    <p>User identities:</p>
+    <p>admin, admin</p>
 </div>
 
 <div><p class="alert-danger">@Message</p></div>
@@ -65,6 +65,9 @@
             var roles = UserValidation.GetRoles(userInfo.Username);
             foreach (var item in roles)
                 claims.Add(new Claim(ClaimTypes.Role, item));
+            
+            claims.Add(new Claim(ClaimTypes.Country, "FR"));
+
             identity.AddClaims(claims);
             principal = new ClaimsPrincipal(identity);
 

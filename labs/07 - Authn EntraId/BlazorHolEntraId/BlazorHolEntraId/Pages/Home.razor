@@ -23,26 +23,27 @@
                 following:
             </p>
 
-            <p><pre><code class="language-js">@JsonSerializer.Serialize(graphApiResponse, new JsonSerializerOptions { WriteIndented = true })</code></pre></p>
-        }
-
-        @code {
-        private JsonDocument? graphApiResponse = null;
-
-        protected override async Task OnInitializedAsync()
-        {
-            try
-            {
-                using var response = await Http.GetAsync("https://graph.microsoft.com/v1.0/me");
-                response.EnsureSuccessStatusCode();
-                graphApiResponse = await response.Content.ReadFromJsonAsync<JsonDocument>().ConfigureAwait(false);
-            }
-            catch (AccessTokenNotAvailableException exception)
-            {
-                exception.Redirect();
-            }
-        }
-
+            <p><pre><code class="language-js">@JsonResult</code></pre></p>
         }
     </Authorized>
 </AuthorizeView>
+
+@code {
+    private JsonDocument? graphApiResponse = null;
+    private string? JsonResult { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var response = await Http.GetAsync("https://graph.microsoft.com/v1.0/me");
+            response.EnsureSuccessStatusCode();
+            graphApiResponse = await response.Content.ReadFromJsonAsync<JsonDocument>().ConfigureAwait(false);
+            JsonResult = JsonSerializer.Serialize(graphApiResponse, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+}
