@@ -71,7 +71,7 @@ Welcome to the Blazor Hands On Lab App.
 
 6. Save the file
 7. Open the file `Components/Layout/NavMenu.razor` file
-8. Add a new `NavLink` component to the `ul` element:
+8. Add a new `NavLink` component to the `nav` element:
 
 ```html
 <div class="nav-item px-3">
