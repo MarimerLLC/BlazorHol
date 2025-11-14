@@ -10,14 +10,14 @@ public class AuthController(IHttpContextAccessor httpContextAccessor)
     [HttpGet]
     public User GetUser()
     {
-        ClaimsPrincipal principal = httpContextAccessor!.HttpContext!.User;
+        var principal = httpContextAccessor?.HttpContext?.User;
         if (principal != null && principal.Identity != null && principal.Identity.IsAuthenticated)
         {
             // Return a user object with the username and claims
             var claims = principal.Claims.Select(c => new Claim { Type = c.Type, Value = c.Value }).ToList();
             return new User
             {
-                Username = principal.Identity!.Name,
+                Username = principal.Identity.Name,
                 Claims = claims
             };
         }
