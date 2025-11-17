@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BlazorRenderModes.Client\BlazorRenderModes.Client.csproj" />
+    <PackageReference Include="Marimer.Blazor.RenderMode" Version="1.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
   </ItemGroup>
 

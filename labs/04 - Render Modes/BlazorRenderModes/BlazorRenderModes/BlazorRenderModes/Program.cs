@@ -1,7 +1,6 @@
 using BlazorRenderModes.Client.Pages;
 using BlazorRenderModes.Components;
-using BlazorRenderModes.Services;
-using Microsoft.AspNetCore.Components.Server.Circuits;
+using Marimer.Blazor.RenderMode;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddTransient<RenderModeProvider>();
-builder.Services.AddScoped<ActiveCircuitState>();
-builder.Services.AddScoped(typeof(CircuitHandler), typeof(ActiveCircuitHandler));
+builder.Services.AddRenderModeDetection();
 
 var app = builder.Build();
 
