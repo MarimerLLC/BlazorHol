@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="MauiBlazorHol/MauiBlazorHol.Shared/MauiBlazorHol.Shared.csproj" />
+  <Project Path="MauiBlazorHol/MauiBlazorHol.Web/MauiBlazorHol.Web.csproj" />
+  <Project Path="MauiBlazorHol/MauiBlazorHol/MauiBlazorHol.csproj">
+    <Deploy />
+  </Project>
+</Solution>
