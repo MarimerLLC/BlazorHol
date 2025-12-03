@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Blazor10RenderModes/Blazor10RenderModes.Client/Blazor10RenderModes.Client.csproj" />
+  <Project Path="Blazor10RenderModes/Blazor10RenderModes/Blazor10RenderModes.csproj" />
+</Solution>
