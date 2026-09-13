@@ -4,7 +4,7 @@ Before attending the workshop you must have one of the following:
 
 * PC (💚 recommended)
   * Windows 10 or 11
-  * Visual Studio 2022, Rider, or Visual Studio Code
+  * Visual Studio 2026, Rider, or Visual Studio Code
 * Mac
   * Rider or Visual Studio Code
   * ⚠️ The presenter does not have a Mac and can not help with Mac specific issues
@@ -16,8 +16,8 @@ Before attending the workshop you must have one of the following:
 In all cases you must have:
 
 * A GitHub account
-* .NET 8 SDK
-* ASP.NET Core 8
+* .NET 10 SDK
+* ASP.NET Core 10
 * .NET MAUI workload
 * An Android emulator or device
 * An iOS simulator or device
