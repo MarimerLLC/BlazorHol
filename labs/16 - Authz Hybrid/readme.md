@@ -9,7 +9,7 @@
 5. Enter the project name: `MauiBlazorHolAuth`
 6. Click Next
 7. Use the following options:
-   - Target Framework: .NET 8.0
+   - Target Framework: .NET 10.0
 8. Click Create
 
 ## Adding an API Server project
@@ -21,9 +21,10 @@
 5. Enter the project name: `AuthServer`
 6. Click Next
 7. Use the following options:
-   - Target Framework: .NET 8.0
+   - Target Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
+   - Enable OpenAPI support: Checked
    - Use controllers: Checked
 8. Click Create
 
@@ -135,10 +136,10 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
 ```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(MauiProgram).Assembly">
+    <Router AppAssembly="typeof(MauiProgram).Assembly" NotFoundPage="typeof(Pages.NotFound)">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
-            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
         </Found>
     </Router>
 </CascadingAuthenticationState>
@@ -248,7 +249,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 }
 ```
 
-9. Edit the `MainLayout.razor` file to add a login/logout button:
+9. Edit the `Layout/MainLayout.razor` file to replace the `About` link with login/logout links:
 
 ```html
 @inherits LayoutComponentBase
@@ -262,7 +263,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         <div class="top-row px-4">
             <AuthorizeView>
                 <Authorized>
-                    Hello, @context.User.Identity.Name
+                    Hello, @context.User.Identity?.Name
                     <a href="logout">Logout</a>
                 </Authorized>
                 <NotAuthorized>
@@ -281,19 +282,19 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 ## Running the Solution
 
 1. Right-click on the solution in Solution Explorer
-2. Click on Set Startup Projects
+2. Click on Configure Startup Projects
 3. Select Multiple startup projects
 4. Set the Action for the `AuthServer` project to Start
 5. Set the Action for the `MauiBlazorHolAuth` project to Start
 6. Click OK
 7. Press F5 to run the solution
-8. The MAUI Blazor app should open in the browser
+8. The MAUI Blazor app should open as a Windows app
 9. Click on the Login link in the top right corner
 10. Enter the username `admin` and password `admin`
 11. Click on the Login button
 12. You should see the Home page with the message `Hello, admin`
 13. Click on the Logout link in the top right corner
-14. You should be redirected to the Login page
+14. You should be redirected to the Home page, and the Login link is displayed again
 
 ## Running the App on Android
 

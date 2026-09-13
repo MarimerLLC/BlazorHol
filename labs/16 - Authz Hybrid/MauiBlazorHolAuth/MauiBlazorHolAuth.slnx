@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AuthServer/AuthServer.csproj" />
+  <Project Path="MauiBlazorHolAuth/MauiBlazorHolAuth.csproj">
+    <Deploy />
+  </Project>
+</Solution>
