@@ -10,13 +10,13 @@ This lab uses the same solution as the previous lab. If you have not completed t
 ## Enabling Controllers
 
 1. Open the `Program.cs` file in the server project
-1. Add the following code to the class:
+1. Add the following code to the class (if it is not already there):
 
 ```csharp
 builder.Services.AddControllers();
 ```
 
-1. Add the following code to the class:
+1. Add the following code to the class (if it is not already there):
 
 ```csharp
 app.MapControllers();
@@ -84,7 +84,7 @@ This code creates a controller that will handle requests for people data. The co
 
 ## Implementing the Client-Side Data Access Layer
 
-1. Add a `PersonDal` class to the `Data` folder in the cient project
+1. Add a `PersonDal` class to the `Data` folder in the client project
 1. Add the following code to the `PersonDal` class:
 
 ```csharp
