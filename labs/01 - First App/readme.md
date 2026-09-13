@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolApp`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Server
@@ -28,7 +28,7 @@
    - Notice how the page does not reload when the counter increments. This is because of data binding. The `currentCount` field is _bound_ to the output with `@currentCount`.
    - Also notice how the button click event is handled by the `IncrementCount` method. This is an example of event binding. The `@onclick` directive is used to bind the click event to the `IncrementCount` method.
 
-7. Navigate to the `Fetch Data` page
+7. Navigate to the `Weather` page
 8. You will see a table with some data
    - Notice how the page loads, then the data appears
    - This is because the data is loaded asynchronously
@@ -102,7 +102,7 @@ Welcome to the Blazor Hands On Lab App.
 
 3. Save the file
 4. Edit the `NavMenu.razor` file
-5. Add a new `NavLink` component to the `ul` element:
+5. Add a new `NavLink` component to the `nav` element:
 
 ```html
 <div class="nav-item px-3">
