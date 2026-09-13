@@ -12,10 +12,13 @@
     protected override async Task OnInitializedAsync()
     {
         var httpContext = httpContextAccessor.HttpContext;
-        var principal = httpContext.User;
-        if (principal.Identity is not null && principal.Identity.IsAuthenticated)
+        if (httpContext is not null)
         {
-            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = httpContext.User;
+            if (principal.Identity is not null && principal.Identity.IsAuthenticated)
+            {
+                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
         }
         NavigationManager.NavigateTo("/");
     }

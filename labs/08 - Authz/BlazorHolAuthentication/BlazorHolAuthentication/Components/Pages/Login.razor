@@ -16,13 +16,13 @@
     <EditForm Model="userInfo" OnSubmit="LoginUser" FormName="loginform">
         <div>
             <label>Username</label>
-            <InputText @bind-Value="userInfo.Username" />
+            <InputText @bind-Value="userInfo!.Username" />
         </div>
         <div>
             <label>Password</label>
-            <InputText type="password" @bind-Value="userInfo.Password" />
+            <InputText type="password" @bind-Value="userInfo!.Password" />
         </div>
-        <button>Login</button>
+        <button type="submit">Login</button>
     </EditForm>
 </div>
 
@@ -36,7 +36,7 @@
 @code {
 
     [SupplyParameterFromForm]
-    public UserInfo userInfo { get; set; } = new();
+    public UserInfo? userInfo { get; set; }
 
     private string ReturnUrl { get; set; } = "/";
 
@@ -44,6 +44,8 @@
 
     protected override void OnInitialized()
     {
+        userInfo ??= new();
+
         var query = new Uri(NavigationManager.Uri).Query;
         if (!string.IsNullOrEmpty(query))
         {
@@ -56,7 +58,7 @@
     {
         Message = "";
         ClaimsPrincipal principal;
-        if (UserValidation.ValidateUser(userInfo.Username, userInfo.Password))
+        if (UserValidation.ValidateUser(userInfo!.Username, userInfo.Password))
         {
             // create authenticated principal
             var identity = new ClaimsIdentity("custom");
