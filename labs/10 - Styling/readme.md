@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolStyling`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Auto (Server and WebAssembly)
@@ -76,7 +76,7 @@ button {
 10. Notice the consolidated css link:
 
 ```html
-    <link rel="stylesheet" href="BlazorHolStyling.styles.css" />
+    <link rel="stylesheet" href="@Assets["BlazorHolStyling.styles.css"]" />
 ```
 
 This is the consolidated CSS file that contains all the per-component CSS files in the project.
@@ -87,7 +87,8 @@ To customize Bootstrap you need to recompile Bootstrap to integrate your changes
 
 1. Add a reference to the `DartSassBuilder` NuGet package in the server project.
 2. Create a new `scss` folder in the server project.
-3. Download Bootstrap from the [official website](https://getbootstrap.com/docs/5.1/getting-started/download/) and extract the `scss` folder from the zip archive to the `scss` folder in your project.
+3. Download the Bootstrap source files from the [official website](https://getbootstrap.com/docs/5.3/getting-started/download/) and extract the `scss` folder from the zip archive to the `scss` folder in your project.
+   - The .NET 10 Blazor template uses Bootstrap 5.3.3 (see `wwwroot/lib/bootstrap`), so use a 5.3.x version of the source files (e.g. [v5.3.3](https://github.com/twbs/bootstrap/archive/v5.3.3.zip)). You don't need the `scss/tests` folder.
 ![scss folder](scss-folder.png)
 4. Add a new file named `custom.scss` to the `scss` folder.
 ![custom file](custom-file.png)
@@ -100,7 +101,6 @@ $secondary: #70af6d;
 
 $link-color: $primary;
 
-@import url('../lib/open-iconic/font/css/open-iconic-bootstrap.min.css');
 @import "bootstrap/scss/bootstrap.scss";
 
 .btn-primary, .btn-primary:active, .btn-primary:focus, .btn-primary:checked {
@@ -116,29 +116,32 @@ These override defaults in Bootstrap. For example, the `$primary` variable is se
 7. Add the following code to the file:
 
 ```xml
-  <Target Name="CopyCssBundles" AfterTargets="AfterBuild">
+  <Target Name="CopyCssBundles" AfterTargets="DartSass_Build">
     <ItemGroup>
       <MyCssBundles Include="scss\custom.css" />
     </ItemGroup>
-    <Copy SourceFiles="@(MyCssBundles)" DestinationFiles="wwwroot\%(Filename)%(Extension)" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="@(MyCssBundles)" DestinationFiles="wwwroot\%(Filename)%(Extension)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+    <ItemGroup>
+      <Content Include="wwwroot\custom.css" Exclude="@(Content)" />
+    </ItemGroup>
   </Target>
 ```
 
-This copies the compiled CSS file to the `wwwroot` folder after the build process.
+This copies the compiled CSS file to the `wwwroot` folder right after `DartSassBuilder` compiles the SCSS files, which is early in the build process. This matters because `app.MapStaticAssets()` serves files based on a manifest (with fingerprinted file names) that is generated during the build, so `custom.css` must be in `wwwroot` before that happens.
 
 8. Open the `App.razor` file in the `Components` folder
 9. Comment out the `app.css` link and add a link to the `custom.css` file:
 
 ```html
-@*  <link rel="stylesheet" href="app.css" /> *@
-    <link rel="stylesheet" href="custom.css" />
+@*  <link rel="stylesheet" href="@Assets["app.css"]" /> *@
+    <link rel="stylesheet" href="@Assets["custom.css"]" />
 ```
 
-9. Build the solution
-10. Notice the `custom.css` file in the `wwwroot` folder
-11. Open the `custom.css` file to see the compiled CSS
-12. Press F5 to run the app
-13. Navigate to the Counter page
-14. The button should now have the styles defined in the `custom.css` file
+10. Build the solution
+11. Notice the `custom.css` file in the `wwwroot` folder
+12. Open the `custom.css` file to see the compiled CSS
+13. Press F5 to run the app
+14. Navigate to the Counter page
+15. The button should now have the styles defined in the `custom.css` file
 
 ⚠️ **Note:** Browser caching can cause styles to not appear immediately. You may need to clear your browser cache or use a private browsing window to see the changes.
