@@ -3,7 +3,7 @@
 ## Opening the Solution
 
 1. Open Visual Studio
-2. Open the `labs/11/BlazorHolDataAccess.sln` solution
+2. Open the `labs/11 - Accessing Data/BlazorHolDataAccess/BlazorHolDataAccess.sln` solution
 
 This is a Blazor Web App solution that you will finish in this lab.
 

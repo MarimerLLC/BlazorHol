@@ -2,7 +2,7 @@
 
 ## Using the Solution
 
-This lab uses the same solution as the previous lab. If you have not completed the previous lab, you can find the solution in the `labs/11/Final` folder.
+This lab uses the same solution as the previous lab. If you have not completed the previous lab, you can find the solution in the `labs/11 - Accessing Data/Final` folder (open `labs/11 - Accessing Data/Final/BlazorHolDataAccess/BlazorHolDataAccess.sln`).
 
 1. Open Visual Studio
 1. Open the `BlazorHolDataAccess` solution
