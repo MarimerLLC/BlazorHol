@@ -13,19 +13,30 @@ public class BearerAuthnHandler(
 {
     public const string SchemeName = "Bearer";
 
+    // Hardcoded tokens and the scopes each one grants
+    private static readonly Dictionary<string, string[]> Tokens = new()
+    {
+        ["MyBearerTokenValue"] = ["weather.read"],
+        ["MyLimitedTokenValue"] = []
+    };
+
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        string? token = Request.Headers.Authorization;
-        if (string.IsNullOrWhiteSpace(token))
+        string? header = Request.Headers.Authorization;
+        if (string.IsNullOrWhiteSpace(header) || !header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             return Task.FromResult(AuthenticateResult.NoResult());
         }
-        if (token != "Bearer MyBearerTokenValue")
+
+        var token = header["Bearer ".Length..].Trim();
+        if (!Tokens.TryGetValue(token, out var scopes))
         {
             return Task.FromResult(AuthenticateResult.Fail("Invalid bearer token"));
         }
 
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Name, "ApiClient")], SchemeName);
+        var claims = new List<Claim> { new(ClaimTypes.Name, "ApiClient") };
+        claims.AddRange(scopes.Select(scope => new Claim("scope", scope)));
+        var identity = new ClaimsIdentity(claims, SchemeName);
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), SchemeName);
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }

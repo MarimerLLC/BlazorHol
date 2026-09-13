@@ -220,6 +220,13 @@ Another alternative is to detect the render mode and only load the data one time
 
 ## Securing the API
 
+Securing the API is a two-step process:
+
+- **Authentication** determines _who_ the caller is. The caller's token is validated and turned into a `ClaimsPrincipal`. If there is no valid token, the API returns `401 Unauthorized`.
+- **Authorization** determines _what_ the caller is allowed to do, based on the claims in that `ClaimsPrincipal`. If the caller is authenticated but lacks the required permission, the API returns `403 Forbidden`.
+
+### Authenticating the token
+
 1. Add a `BearerAuthnHandler` class to the `AppServer` project
 
 ```csharp
@@ -238,19 +245,30 @@ public class BearerAuthnHandler(
 {
     public const string SchemeName = "Bearer";
 
+    // Hardcoded tokens and the scopes each one grants
+    private static readonly Dictionary<string, string[]> Tokens = new()
+    {
+        ["MyBearerTokenValue"] = ["weather.read"],
+        ["MyLimitedTokenValue"] = []
+    };
+
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        string? token = Request.Headers.Authorization;
-        if (string.IsNullOrWhiteSpace(token))
+        string? header = Request.Headers.Authorization;
+        if (string.IsNullOrWhiteSpace(header) || !header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             return Task.FromResult(AuthenticateResult.NoResult());
         }
-        if (token != "Bearer MyBearerTokenValue")
+
+        var token = header["Bearer ".Length..].Trim();
+        if (!Tokens.TryGetValue(token, out var scopes))
         {
             return Task.FromResult(AuthenticateResult.Fail("Invalid bearer token"));
         }
 
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Name, "ApiClient")], SchemeName);
+        var claims = new List<Claim> { new(ClaimTypes.Name, "ApiClient") };
+        claims.AddRange(scopes.Select(scope => new Claim("scope", scope)));
+        var identity = new ClaimsIdentity(claims, SchemeName);
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), SchemeName);
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
@@ -264,25 +282,60 @@ public class BearerAuthnHandler(
 }
 ```
 
-This is an ASP.NET Core _authentication_ handler. It reads the `Authorization` header and, if the token is valid, creates a `ClaimsPrincipal` for the caller. If the token is missing or invalid, the caller is not authenticated, and when authorization later requires an authenticated user, `HandleChallengeAsync` returns a `401 Unauthorized` response.
+This is an ASP.NET Core _authentication_ handler. It reads the `Authorization` header and, if the token is valid, creates a `ClaimsPrincipal` for the caller with a `scope` claim for each permission the token grants. If the token is missing or invalid, the caller is not authenticated, and `HandleChallengeAsync` returns a `401 Unauthorized` response.
 
-This is just an example, and uses a hardcoded token. In a real-world scenario, you would use a more secure method to validate the token, such as the `Microsoft.AspNetCore.Authentication.JwtBearer` package.
+This is just an example, and uses hardcoded tokens. In a real-world scenario, you would use a more secure method to validate the token, such as the `Microsoft.AspNetCore.Authentication.JwtBearer` package, where the scopes come from claims inside a signed JWT.
 
-2. Register the authentication handler and an authorization policy in the `Program.cs` file in the `AppServer` project (add `using AppServer;` and `using Microsoft.AspNetCore.Authentication;` at the top of the file)
+### Authorizing based on the token's claims
+
+2. Add a `ScopeAuthorizationHandler` class to the `AppServer` project
+
+```csharp
+using Microsoft.AspNetCore.Authorization;
+
+namespace AppServer;
+
+public class ScopeRequirement(string scope) : IAuthorizationRequirement
+{
+    public string Scope { get; } = scope;
+}
+
+public class ScopeAuthorizationHandler : AuthorizationHandler<ScopeRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopeRequirement requirement)
+    {
+        if (context.User.HasClaim("scope", requirement.Scope))
+        {
+            context.Succeed(requirement);
+        }
+        return Task.CompletedTask;
+    }
+}
+```
+
+The `ScopeRequirement` describes a permission the caller must have, and the `ScopeAuthorizationHandler` checks the claims created by the authentication handler to see if the caller has it. Notice that the authorization handler doesn't look at the token at all; it only uses the authenticated `ClaimsPrincipal`.
+
+### Registering authentication and authorization
+
+3. Register the handlers and an authorization policy in the `Program.cs` file in the `AppServer` project (add `using AppServer;`, `using Microsoft.AspNetCore.Authentication;`, and `using Microsoft.AspNetCore.Authorization;` at the top of the file)
 
 ```csharp
 builder.Services.AddAuthentication(BearerAuthnHandler.SchemeName)
     .AddScheme<AuthenticationSchemeOptions, BearerAuthnHandler>(BearerAuthnHandler.SchemeName, null);
+builder.Services.AddSingleton<IAuthorizationHandler, ScopeAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("BearerAuthn", policy =>
     {
         policy.RequireAuthenticatedUser();
+        policy.Requirements.Add(new ScopeRequirement("weather.read"));
     });
 });
 ```
 
-3. Add authentication to the request pipeline in the `Program.cs` file, between the `app.UseCors` and `app.UseAuthorization` calls
+The `BearerAuthn` policy requires an authenticated caller that also has the `weather.read` scope.
+
+4. Add authentication to the request pipeline in the `Program.cs` file, between the `app.UseCors` and `app.UseAuthorization` calls
 
 ```csharp
 app.UseCors("AllowAllOrigins");
@@ -291,13 +344,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 ```
 
-4. Use the policy for all controllers in the `Program.cs` file in the `AppServer` project
+5. Use the policy for all controllers in the `Program.cs` file in the `AppServer` project
 
 ```csharp
 app.MapControllers().RequireAuthorization("BearerAuthn");
 ```
 
-5. Supply the token in the `ClientWeather.razor` file in the client project
+### Supplying the token
+
+6. Supply the token in the `ClientWeather.razor` file in the client project
 
 ```csharp
     var httpClient = new HttpClient();
@@ -307,7 +362,7 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
 
 > ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
-6. Supply the token in the `Weather.razor` file in the server project
+7. Supply the token in the `Weather.razor` file in the server project
 
 ```csharp
     var httpClient = new HttpClient();
@@ -317,16 +372,51 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
 
 > ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
-7. Run the application
-8. In a browser, navigate directly to `https://localhost:????/weatherforecast` (the AppServer port); notice that the weather forecast data is not shown because the request has no bearer token, and the AppServer returns a `401 Unauthorized` response
+### Testing the secured API
 
-9. Navigate to the `Weather` page
-10. You will see the weather forecast data loaded from the Web API
-11. Navigate to the `Client Weather` page
-12. You will see the weather forecast data loaded from the Web API
+8. Run the application
+9. In a browser, navigate directly to `https://localhost:????/weatherforecast` (the AppServer port); notice that the weather forecast data is not shown because the request has no bearer token, and the AppServer returns a `401 Unauthorized` response
+10. Open the `AppServer.http` file in the `AppServer` project and replace its contents with the following
+
+```http
+@AppServer_HostAddress = http://localhost:5204
+
+# No token: 401 Unauthorized
+GET {{AppServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+# Valid token without the weather.read scope: 403 Forbidden
+GET {{AppServer_HostAddress}}/weatherforecast/
+Accept: application/json
+Authorization: Bearer MyLimitedTokenValue
+
+###
+
+# Valid token with the weather.read scope: 200 OK
+GET {{AppServer_HostAddress}}/weatherforecast/
+Accept: application/json
+Authorization: Bearer MyBearerTokenValue
+
+###
+```
+
+> ⚠️ Change the port from `5204` to the `http` port of _your_ AppServer project
+
+11. Click `Send request` above each request and notice the different responses
+    - With no token, authentication fails and the response is `401 Unauthorized`
+    - With `MyLimitedTokenValue`, the caller is authenticated but doesn't have the `weather.read` scope, so authorization fails and the response is `403 Forbidden`
+    - With `MyBearerTokenValue`, the caller is authenticated and authorized, so the weather forecast data is returned
+12. Navigate to the `Weather` page
+13. You will see the weather forecast data loaded from the Web API
+14. Navigate to the `Client Weather` page
+15. You will see the weather forecast data loaded from the Web API
 
 ## References
 
 https://learn.microsoft.com/aspnet/core/security/authentication/?view=aspnetcore-10.0
+
+https://learn.microsoft.com/aspnet/core/security/authorization/policies?view=aspnetcore-10.0
 
 https://khalidabuhakmeh.com/customize-the-authorization-pipeline-in-aspnet-core

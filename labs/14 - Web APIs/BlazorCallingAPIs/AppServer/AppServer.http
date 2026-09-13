@@ -1,6 +1,21 @@
 @AppServer_HostAddress = http://localhost:5204
 
+# No token: 401 Unauthorized
 GET {{AppServer_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+# Valid token without the weather.read scope: 403 Forbidden
+GET {{AppServer_HostAddress}}/weatherforecast/
+Accept: application/json
+Authorization: Bearer MyLimitedTokenValue
+
+###
+
+# Valid token with the weather.read scope: 200 OK
+GET {{AppServer_HostAddress}}/weatherforecast/
+Accept: application/json
+Authorization: Bearer MyBearerTokenValue
 
 ###
