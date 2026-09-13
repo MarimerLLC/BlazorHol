@@ -30,7 +30,7 @@
             }
             else
             {
-                var newId = Data.Database.People.Max(p => p.Id) + 1;
+                var newId = Data.Database.People.Count == 0 ? 1 : Data.Database.People.Max(p => p.Id) + 1;
                 person.Id = newId;
                 Data.Database.People.Add(person);
             }

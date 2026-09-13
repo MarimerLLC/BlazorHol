@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolData`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Server
@@ -41,8 +41,10 @@ public class Person
 {
     public int Id { get; set; }
     [Required]
+    [Display(Name = "First Name")]
     public required string FirstName { get; set; }
     [Required]
+    [Display(Name = "Last Name")]
     public required string LastName { get; set; }
     public int Age { get; set; }
 }
@@ -52,7 +54,7 @@ This is your mock data, including the use of data annotations to validate the da
 
 ## Displaying the Data
 
-1. Open the `Home.razor` file.
+1. Open the `Components/Pages/Home.razor` file.
 2. Add a table to list the people:
 
 ```html
@@ -81,7 +83,7 @@ Welcome to your new app.
                 <td>@person.FirstName</td>
                 <td>@person.LastName</td>
                 <td>@person.Age</td>
-                <td><a href="EditPerson/id=@person.Id">Edit</a></td>
+                <td><a href="EditPerson/@person.Id">Edit</a></td>
             </tr>
         }
     </tbody>
@@ -96,7 +98,7 @@ Welcome to your new app.
 dotnet add package Microsoft.AspNetCore.Components.QuickGrid
 ```
 
-2. Open the `Imports.razor` file and add the following line:
+2. Open the `Components/_Imports.razor` file and add the following line:
 
 ```csharp
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -122,7 +124,7 @@ dotnet add package Microsoft.AspNetCore.Components.QuickGrid
 
 ## Adding an Edit Page
 
-1. Add a new razor component to the `Pages` folder named `EditPerson.razor`:
+1. Add a new razor component to the `Components/Pages` folder named `EditPerson.razor`:
 
 ```html
 @page "/editperson/{id:int}"
@@ -252,6 +254,7 @@ Now this page can be accessed by navigating to `/editperson` or `/editperson/0`.
         }
         else
         {
+            int newId;
             if (Data.Database.People.Count() == 0)
                 newId = 1;
             else
@@ -277,7 +280,7 @@ Now this page can be accessed by navigating to `/editperson` or `/editperson/0`.
         </TemplateColumn>
 ```
 
-3. Add a new `RemovePerson` page to the `Pages` folder:
+3. Add a new `RemovePerson` page to the `Components/Pages` folder:
 
 ```html
 @page "/removeperson/{id:int}"

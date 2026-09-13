@@ -8,7 +8,7 @@ namespace BlazorHolData.Controllers
     [ApiController]
     public class PersonController(IPersonDal personDal) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("{id:int}")]
         public async Task<Person> GetPerson(int id)
         {
             return await personDal.GetPerson(id);
