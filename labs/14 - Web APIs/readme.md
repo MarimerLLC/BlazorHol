@@ -223,54 +223,72 @@ Another alternative is to detect the render mode and only load the data one time
 1. Add a `BearerAuthnHandler` class to the `AppServer` project
 
 ```csharp
-using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
 
 namespace AppServer;
 
-public class BearerAuthnHandler(IHttpContextAccessor HttpContextAccessor) : AuthorizationHandler<BearerAuthnRequirement>
+public class BearerAuthnHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, BearerAuthnRequirement requirement)
+    public const string SchemeName = "Bearer";
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (HttpContextAccessor is null)
+        string? token = Request.Headers.Authorization;
+        if (string.IsNullOrWhiteSpace(token))
         {
-            throw new ArgumentNullException(nameof(HttpContextAccessor));
+            return Task.FromResult(AuthenticateResult.NoResult());
         }
-        var token = HttpContextAccessor.HttpContext?.Request.Headers.Authorization;
-        if (string.IsNullOrWhiteSpace(token) || token.Value != "Bearer MyBearerTokenValue")
+        if (token != "Bearer MyBearerTokenValue")
         {
-            context.Fail();
+            return Task.FromResult(AuthenticateResult.Fail("Invalid bearer token"));
         }
-        else
-        {
-            context.Succeed(requirement);
-        }
+
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Name, "ApiClient")], SchemeName);
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), SchemeName);
+        return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+
+    protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+    {
+        Response.StatusCode = StatusCodes.Status401Unauthorized;
+        Response.Headers.WWWAuthenticate = SchemeName;
         return Task.CompletedTask;
     }
 }
 ```
 
-This is just an example, and uses a hardcoded token. In a real-world scenario, you would use a more secure method to validate the token.
+This is an ASP.NET Core _authentication_ handler. It reads the `Authorization` header and, if the token is valid, creates a `ClaimsPrincipal` for the caller. If the token is missing or invalid, the caller is not authenticated, and when authorization later requires an authenticated user, `HandleChallengeAsync` returns a `401 Unauthorized` response.
 
-2. Add a `BearerAuthnRequirement` class to the `AppServer` project
+This is just an example, and uses a hardcoded token. In a real-world scenario, you would use a more secure method to validate the token, such as the `Microsoft.AspNetCore.Authentication.JwtBearer` package.
 
-```csharp
-public class BearerAuthnRequirement : IAuthorizationRequirement
-{
-}
-```
-
-3. Register the handler in the `Program.cs` file in the `AppServer` project (add `using AppServer;` and `using Microsoft.AspNetCore.Authorization;` at the top of the file)
+2. Register the authentication handler and an authorization policy in the `Program.cs` file in the `AppServer` project (add `using AppServer;` and `using Microsoft.AspNetCore.Authentication;` at the top of the file)
 
 ```csharp
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<IAuthorizationHandler, BearerAuthnHandler>();
+builder.Services.AddAuthentication(BearerAuthnHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, BearerAuthnHandler>(BearerAuthnHandler.SchemeName, null);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("BearerAuthn", policy =>
     {
-        policy.Requirements.Add(new BearerAuthnRequirement());
+        policy.RequireAuthenticatedUser();
     });
 });
+```
+
+3. Add authentication to the request pipeline in the `Program.cs` file, between the `app.UseCors` and `app.UseAuthorization` calls
+
+```csharp
+app.UseCors("AllowAllOrigins");
+
+app.UseAuthentication();
+app.UseAuthorization();
 ```
 
 4. Use the policy for all controllers in the `Program.cs` file in the `AppServer` project
@@ -300,9 +318,7 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
 > ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
 7. Run the application
-8. In a browser, navigate directly to `https://localhost:????/weatherforecast` (the AppServer port); notice that the weather forecast data is not shown because the request has no bearer token and is not authorized
-
-> ℹ️ Because this simple example doesn't configure an ASP.NET Core authentication scheme, the authorization failure surfaces as a server error rather than a `401 Unauthorized` response.
+8. In a browser, navigate directly to `https://localhost:????/weatherforecast` (the AppServer port); notice that the weather forecast data is not shown because the request has no bearer token, and the AppServer returns a `401 Unauthorized` response
 
 9. Navigate to the `Weather` page
 10. You will see the weather forecast data loaded from the Web API
@@ -310,5 +326,7 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
 12. You will see the weather forecast data loaded from the Web API
 
 ## References
+
+https://learn.microsoft.com/aspnet/core/security/authentication/?view=aspnetcore-10.0
 
 https://khalidabuhakmeh.com/customize-the-authorization-pipeline-in-aspnet-core

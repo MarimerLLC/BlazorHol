@@ -1,5 +1,5 @@
 using AppServer;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +15,13 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<IAuthorizationHandler, BearerAuthnHandler>();
+builder.Services.AddAuthentication(BearerAuthnHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, BearerAuthnHandler>(BearerAuthnHandler.SchemeName, null);
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("BearerAuthn", policy =>
     {
-        policy.Requirements.Add(new BearerAuthnRequirement());
+        policy.RequireAuthenticatedUser();
     });
 });
 
@@ -35,6 +35,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAllOrigins");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers().RequireAuthorization("BearerAuthn");
