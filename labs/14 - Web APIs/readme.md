@@ -6,18 +6,16 @@
 2. Click on Create a new project
 3. Select Blazor Web App
 4. Click Next
-5. Enter the project name: `BlazorHolCallingApis`
+5. Enter the project name: `BlazorCallingAPIs`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Auto (Server and WebAssembly)
    - Interactivity location: Per page/component
    - Include sample pages: Checked
 8. Click Create
-9. Run the AppServer project from Visual Studio
-10. Make note of the port number: `https://localhost:????`
 
 ## Adding an AppServer project
 
@@ -28,11 +26,14 @@
 5. Enter the project name: `AppServer`
 6. Click Next
 7. Use the following options:
-   - Target Framework: .NET 8.0
+   - Target Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
+   - Enable OpenAPI support: Unchecked
    - Use controllers: Checked
 8. Click Create
+9. Run the AppServer project from Visual Studio
+10. Make note of the port number: `https://localhost:????` (you can also find it in the `https` profile in the `Properties/launchSettings.json` file of the AppServer project)
 
 ## Examine the WeatherForecast class
 
@@ -49,9 +50,9 @@
 ## Configure Startup Projects
 
 1. Right-click on the solution
-2. Click on Startup Projects
+2. Click on Configure Startup Projects
 3. Select Multiple startup projects
-4. Set the Action for the `BlazorHolCallingApis` project to Start
+4. Set the Action for the `BlazorCallingAPIs` project to Start
 5. Set the Action for the `AppServer` project to Start
 6. Click OK
 
@@ -59,8 +60,14 @@
 
 ## Using the API in the Blazor project
 
-1. Open the `Weather.razor` file in the `BlazorHolCallingApis` project
-2. Change the `Weather.razor` page to use the Web API
+1. Open the `Weather.razor` file in the `BlazorCallingAPIs` project
+2. Add a `using` statement for the `System.Net.Http.Headers` namespace below the `@page` directive
+
+```html
+@using System.Net.Http.Headers
+```
+
+3. Change the `OnInitializedAsync` method in the `Weather.razor` page to use the Web API
 
 ```csharp
     protected override async Task OnInitializedAsync()
@@ -73,9 +80,9 @@
 
 > ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
-3. Run the application
-4. Navigate to the `Weather` page
-5. You will see the weather forecast data loaded from the Web API
+4. Run the application
+5. Navigate to the `Weather` page
+6. You will see the weather forecast data loaded from the Web API
 
 ## Using the API from a WebAssembly Page
 
@@ -129,7 +136,7 @@ builder.Services.AddCors(options =>
 });
 ```
 
-3. Add the following code to use the CORS policy
+3. Add the following code to use the CORS policy, placing it _before_ the call to `app.UseAuthorization()`
 
 ```csharp
 app.UseCors("AllowAllOrigins");
@@ -209,6 +216,8 @@ If you watch closely, you'll see that the data is loaded twice! This is because 
 
 Another alternative is to detect the render mode and only load the data one time, usually once the page has rendered in interactive mode.
 
+> ℹ️ The completed `ClientWeather.razor` in this lab's solution uses this alternative: it uses the `Marimer.Blazor.RenderMode` package to detect the render mode and only calls the API when the page is interactive. The `PersistentComponentState` code from above is left in the file as comments for comparison.
+
 ## Securing the API
 
 1. Add a `BearerAuthnHandler` class to the `AppServer` project
@@ -250,7 +259,7 @@ public class BearerAuthnRequirement : IAuthorizationRequirement
 }
 ```
 
-3. Register the handler in the `Program.cs` file in the `AppServer` project
+3. Register the handler in the `Program.cs` file in the `AppServer` project (add `using AppServer;` and `using Microsoft.AspNetCore.Authorization;` at the top of the file)
 
 ```csharp
 builder.Services.AddHttpContextAccessor();
@@ -291,7 +300,10 @@ app.MapControllers().RequireAuthorization("BearerAuthn");
 > ⚠️ Change the port from `7285` to the port of _your_ AppServer project
 
 7. Run the application
-8. Notice that the browser that should show the weather forecast data is not showing the data because it is not authorized
+8. In a browser, navigate directly to `https://localhost:????/weatherforecast` (the AppServer port); notice that the weather forecast data is not shown because the request has no bearer token and is not authorized
+
+> ℹ️ Because this simple example doesn't configure an ASP.NET Core authentication scheme, the authorization failure surfaces as a server error rather than a `401 Unauthorized` response.
+
 9. Navigate to the `Weather` page
 10. You will see the weather forecast data loaded from the Web API
 11. Navigate to the `Client Weather` page

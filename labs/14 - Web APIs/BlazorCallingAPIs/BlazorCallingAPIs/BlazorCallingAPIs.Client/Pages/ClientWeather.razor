@@ -47,7 +47,7 @@ else
 
 @code {
     private WeatherForecast[]? forecasts;
-    private PersistingComponentStateSubscription _subscription;
+    private PersistingComponentStateSubscription? _subscription = null;
     private Marimer.Blazor.RenderMode.RenderMode renderMode;
 
     protected override async Task OnInitializedAsync()
@@ -90,6 +90,6 @@ else
 
     public void Dispose()
     {
-        _subscription.Dispose();
+        _subscription?.Dispose();
     }
 }

@@ -33,9 +33,9 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseCors("AllowAllOrigins");
+
+app.UseAuthorization();
 
 app.MapControllers().RequireAuthorization("BearerAuthn");
 
