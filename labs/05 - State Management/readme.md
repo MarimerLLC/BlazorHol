@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolState`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Auto (Server and WebAssembly)
@@ -181,9 +181,12 @@ public class SessionManager(SessionIdManager sessionIdManager) : ISessionManager
 
 This service manages the session data for the user. It uses the `ISessionIdManager` to get the session id and access the session data dictionary. The `GetSession` method retrieves the session data for the user, creating a new session if one does not exist. The `UpdateSession` method updates the session data with the new values.
 
-3. Register the services in the _server_ `Program.cs` file:
+3. Register the services in the _server_ `Program.cs` file (the `using` statements go at the top of the file):
 
 ```csharp
+using BlazorHolState;
+using BlazorHolState.Server;
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton(typeof(ISessionManager), typeof(SessionManager));
@@ -229,9 +232,12 @@ public class SessionManager(HttpClient client) : ISessionManager
 
 This service is responsible for managing the session data for the user. It uses the `HttpClient` to communicate with the server to get and update the session data.
 
-2. Register the services in the _client_ `Program.cs` file:
+2. Register the services in the _client_ `Program.cs` file (the `using` statements go at the top of the file):
 
 ```csharp
+using BlazorHolState;
+using BlazorHolState.Client;
+
 builder.Services.AddTransient<HttpClient>(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddSingleton(typeof(ISessionManager), typeof(SessionManager));
