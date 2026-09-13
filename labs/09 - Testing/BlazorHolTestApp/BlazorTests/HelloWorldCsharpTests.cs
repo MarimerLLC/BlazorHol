@@ -1,18 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bunit;
-using BlazorTests;
 using BlazorHolTestApp.Components.Pages;
 
 namespace BlazorTests;
 
 [TestClass]
-public class HelloWorldTests : BunitTestContext
+public class HelloWorldCsharpTests : BunitContext
 {
     [TestMethod]
     public void HelloWorldComponentRendersCorrectly()
     {
         // Act
-        var cut = RenderComponent<HelloWorld>();
+        var cut = Render<HelloWorld>();
 
         // Assert
         cut.MarkupMatches("<h1>Hello world from Blazor</h1>");
