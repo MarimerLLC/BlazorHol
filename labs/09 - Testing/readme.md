@@ -18,7 +18,7 @@ dotnet new install bunit.template
 5. Enter the project name: `BlazorHolTestApp`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Server
@@ -28,7 +28,7 @@ dotnet new install bunit.template
 
 ## Add a Hello World Component
 
-1. In the `Pages` folder, add a new component named `HelloWorld.razor`:
+1. In the `Components/Pages` folder, add a new component named `HelloWorld.razor`:
 
 ```razor
 <h1>Hello world from Blazor</h1>
@@ -40,7 +40,7 @@ dotnet new install bunit.template
 2. Select the bUnit Test Project template
 3. Name the project `BlazorTests`
 4. Select mstest as the test framework
-5. Target .NET 8.0
+5. Target .NET 10.0
 6. Select the `BlazorTests` project
 7. In the `BlazorTests` project, add a Project Reference to the `BlazorHolTestApp` project
 8. In the `BlazorTests` project, add a using statement to the `_Imports.razor` file:
@@ -51,27 +51,28 @@ dotnet new install bunit.template
 
 9. In the `BlazorTests` project, delete the `Counter.razor` file, as we will be using the component from the `BlazorHolTestApp` project
 
+> **Note:** This lab uses bUnit 2. If you find older bUnit examples online, note that bUnit 2 renamed `TestContext` to `BunitContext` and `RenderComponent<T>()` to `Render<T>()`. Test classes now inherit directly from `BunitContext`.
+
 ## Create a C# test for the HelloWorld component
 
-1. In the `BlazorTests` project, add a new file named `HelloWorldCsharpTest.cs`
+1. In the `BlazorTests` project, add a new file named `HelloWorldCsharpTests.cs`
 2. Add the following code:
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bunit;
-using BlazorTests;
 using BlazorHolTestApp.Components.Pages;
 
 namespace BlazorTests;
 
 [TestClass]
-public class HelloWorldCsharpTests : BunitTestContext
+public class HelloWorldCsharpTests : BunitContext
 {
     [TestMethod]
     public void HelloWorldComponentRendersCorrectly()
     {
         // Act
-        var cut = RenderComponent<HelloWorld>();
+        var cut = Render<HelloWorld>();
 
         // Assert
         cut.MarkupMatches("<h1>Hello world from Blazor</h1>");
@@ -87,7 +88,7 @@ public class HelloWorldCsharpTests : BunitTestContext
 ```razor
 @attribute [TestClass]
 
-@inherits BunitTestContext
+@inherits BunitContext
 
 @code
 {
@@ -103,10 +104,16 @@ public class HelloWorldCsharpTests : BunitTestContext
 }
 ```
 
-## Fix the CounterCSharpTests Test
+## Fix the Counter Tests
 
-1. In the `BlazorTests` project, open the `CounterCSharpTests.cs` file
-2. Replace the `CounterCSharpTests` class with the following code:
+1. In the `BlazorTests` project, open the `CounterCSharpTest.cs` file
+2. Add the following using statement at the top of the file:
+
+```csharp
+using BlazorHolTestApp.Components.Pages;
+```
+
+3. Replace the two `MarkupMatches` lines with the following code:
 
 ```csharp
     cut.Find("p").MarkupMatches("<p role=\"status\">Current count: 0</p>");
@@ -116,6 +123,19 @@ and
 
 ```csharp
     cut.Find("p").MarkupMatches("<p role=\"status\">Current count: 1</p>");
+```
+
+4. Open the `CounterRazorTests.razor` file
+5. Replace the two `MarkupMatches` lines with the following code:
+
+```razor
+    cut.Find("p").MarkupMatches(@<p role="status">Current count: 0</p>);
+```
+
+and
+
+```razor
+    cut.Find("p").MarkupMatches(@<p role="status">Current count: 1</p>);
 ```
 
 The `role="status"` attribute is added to the `p` elements to make the test pass. Microsoft has changed the Blazor template more recently than the bUnit templates have changed.

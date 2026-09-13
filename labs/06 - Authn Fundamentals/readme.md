@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolAuthentication`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Server
@@ -33,11 +33,13 @@ builder.Services.AddCascadingAuthenticationState();
 
 This registers the cookie authentication service and the cascading authentication state service. The cascading authentication state service is used to provide the authentication state to all components in the application.
 
-3. Add code to use authorization and authentication in the application
+3. Add code to use authorization and authentication in the application, immediately before the `app.UseAntiforgery();` line
 
 ```csharp
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseAntiforgery();
 ```
 
 ## Use Authentication in the Application
@@ -52,7 +54,7 @@ app.UseAuthorization();
 
 ```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="typeof(Program).Assembly">
+    <Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
             <FocusOnNavigate RouteData="routeData" Selector="h1" />
@@ -132,13 +134,13 @@ builder.Services.AddTransient<UserValidation>();
   <EditForm Model="userInfo" OnSubmit="LoginUser" FormName="loginform">
       <div>
           <label>Username</label>
-          <InputText @bind-Value="userInfo.Username" />
+          <InputText @bind-Value="userInfo!.Username" />
       </div>
       <div>
           <label>Password</label>
-          <InputText type="password" @bind-Value="userInfo.Password" />
+          <InputText type="password" @bind-Value="userInfo!.Password" />
       </div>
-      <button>Login</button>
+      <button type="submit">Login</button>
   </EditForm>
 </div>
 
@@ -152,15 +154,17 @@ builder.Services.AddTransient<UserValidation>();
 @code {
 
     [SupplyParameterFromForm]
-    public UserInfo userInfo { get; set; } = new();
+    public UserInfo? userInfo { get; set; }
 
     public string Message { get; set; } = "";
+
+    protected override void OnInitialized() => userInfo ??= new();
 
     private async Task LoginUser()
     {
         Message = "";
         ClaimsPrincipal principal;
-        if (UserValidation.ValidateUser(userInfo.Username, userInfo.Password))
+        if (UserValidation.ValidateUser(userInfo!.Username, userInfo.Password))
         {
             // create authenticated principal
             var identity = new ClaimsIdentity("custom");
@@ -204,6 +208,7 @@ builder.Services.AddTransient<UserValidation>();
 There's a lot going on in this code. Here's a summary:
 
 - The `Login` component is a form that allows the user to enter a username and password.
+- The `userInfo` property is populated from the posted form data because of the `[SupplyParameterFromForm]` attribute. It is initialized in `OnInitialized` (rather than with a property initializer) because a property initializer can be overwritten with `null` during a form post.
 - The `LoginUser` method is called when the form is submitted. It validates the user's credentials and creates a `ClaimsPrincipal` object with the user's identity and roles.
 - The `LoginUser` method then signs in the user using the `HttpContext.SignInAsync` method, which sets a cookie with the user's authentication information.
 - If the user's credentials are invalid, an error message is displayed.
@@ -224,10 +229,13 @@ There's a lot going on in this code. Here's a summary:
     protected override async Task OnInitializedAsync()
     {
         var httpContext = httpContextAccessor.HttpContext;
-        var principal = httpContext.User;
-        if (principal.Identity is not null && principal.Identity.IsAuthenticated)
+        if (httpContext is not null)
         {
-            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = httpContext.User;
+            if (principal.Identity is not null && principal.Identity.IsAuthenticated)
+            {
+                await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
         }
         NavigationManager.NavigateTo("/");
     }
@@ -252,7 +260,7 @@ This component logs the user out by calling the `HttpContext.SignOutAsync` metho
         <div class="top-row px-4">
             <AuthorizeView>
                 <Authorized>
-                    Hello, @context.User.Identity.Name
+                    Hello, @context.User.Identity?.Name
                     <a href="/logout">Logout</a>
                 </Authorized>
                 <NotAuthorized>
@@ -268,10 +276,10 @@ This component logs the user out by calling the `HttpContext.SignOutAsync` metho
     </main>
 </div>
 
-<div id="blazor-error-ui">
+<div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
 </div>
 ```
 

@@ -8,7 +8,7 @@ Welcome to your new app.
 
 <AuthorizeView>
     <Authorized>
-        <p>Hello, @context.User.Identity.Name!</p>
+        <p>Hello, @context.User.Identity?.Name!</p>
         <p>Here are some resources for you:</p>
         <ul>
             <li><a href="/counter">Counter</a></li>

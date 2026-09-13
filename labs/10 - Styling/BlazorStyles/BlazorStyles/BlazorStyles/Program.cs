@@ -14,7 +14,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-  .AddCookie();
+  .AddCookie(options => options.LoginPath = "/login");
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTransient<ValidateUser>();
@@ -34,15 +34,15 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
-
-app.UseStaticFiles();
-app.UseAntiforgery();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseAntiforgery();
+
+app.MapStaticAssets();
 app.MapControllers();
 
 app.MapRazorComponents<App>()

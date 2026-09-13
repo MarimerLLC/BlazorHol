@@ -9,7 +9,7 @@
 Welcome to your new app.
 
 <div class="border border-primary">
-    @if (AuthenticationState.User.Identity.IsAuthenticated)
+    @if (AuthenticationState?.User.Identity?.IsAuthenticated == true)
     {
         <p>You are authenticated.</p>
         <p>Username: @AuthenticationState.User.Identity.Name</p>
@@ -27,7 +27,7 @@ Welcome to your new app.
 
 @code
 {
-    private AuthenticationState AuthenticationState;
+    private AuthenticationState? AuthenticationState { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

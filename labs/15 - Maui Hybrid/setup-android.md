@@ -1,19 +1,21 @@
 # Setting Up an Android Emulator
 
-These instructions are for Windows 11 and Visual Studio 2022. If you are using a different operating system or version of Visual Studio, the steps may be different.
+These instructions are for Windows 11 and Visual Studio 2026. If you are using a different operating system or version of Visual Studio, the steps may be different.
+
+> ℹ️ The screenshots were taken with an earlier version of Visual Studio, so your screens may look slightly different.
 
 ## Determine the Android SDKs Installed
 
-1. Open the Android SDK Manager from the Tools menu in Visual Studio
+1. Open the Android SDK Manager from the Tools menu (under Tools > Android) in Visual Studio
 ![android device manager](android-dev-mgr.png)
 2. Examine the list of SDKs and note which ones are installed
 ![installed SDKS](installed-sdks.png)
 
-In my example, I have versions 35, 34, and 33 installed.
+In my example, I have versions 35, 34, and 33 installed. .NET 10 MAUI apps build against Android 16 (API 36), and the project template supports devices running Android 7.0 (API 24) or later.
 
 ## Installing the Android Emulator
 
-1. Open the Android Device Manager from the Tools menu in Visual Studio
+1. Open the Android Device Manager from the Tools menu (under Tools > Android) in Visual Studio
 ![android device manager](android-dev-mgr.png)
 2. Click on the `+` button; for me the default device is a Pixel
 ![default emulator](default-emulator.png)

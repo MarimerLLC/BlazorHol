@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolEntraId`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
     - Progressive Web Application: Unchecked
@@ -22,10 +22,10 @@
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.8" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Graph" Version="5.56.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.12" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Graph" Version="6.6.0" />
   </ItemGroup>
 ```
 
@@ -60,7 +60,10 @@ builder.Services.AddScoped(sp =>
         authorizedUrls: new[] { "https://graph.microsoft.com/v1.0" },
         scopes: new[] { "User.Read" });
 
-    return new HttpClient(authorizationMessageHandler);
+    return new HttpClient(authorizationMessageHandler)
+    {
+        BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+    };
 });
 
 await builder.Build().RunAsync();
@@ -73,7 +76,7 @@ In `_Imports.razor` file, add the following code:
 ```
 
 3. Open the `wwwroot/index.html` file
-4. Add the following code near the bottom where other `<script>` tags exist:
+4. Add the following code near the bottom, just above the existing `_framework/blazor.webassembly` `<script>` tag:
 
 ```html
     <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
@@ -86,7 +89,7 @@ In `_Imports.razor` file, add the following code:
 
 ```html
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly">
+    <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
@@ -102,12 +105,6 @@ In `_Imports.razor` file, add the following code:
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
-        <NotFound>
-            <PageTitle>Not found</PageTitle>
-            <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
-            </LayoutView>
-        </NotFound>
     </Router>
 </CascadingAuthenticationState>
 ```
@@ -141,12 +138,13 @@ In `_Imports.razor` file, add the following code:
 2. Add a new Razor component named `RedirectToLogin.razor` to the `Layout` folder with the following content:
 
 ```html
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
 
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+        Navigation.NavigateToLogin("authentication/login");
     }
 }
 ```
@@ -249,7 +247,7 @@ This code uses an authenticated HTTP client to call the Microsoft Graph API and 
 
 ## Setting the Azure AD Configuration
 
-1. Open the `wwwroot/appsettings.json` file
+1. Open the `wwwroot/appsettings.json` file (add a new `appsettings.json` file to the `wwwroot` folder if it doesn't exist)
 2. Add the configuration provided by your instructor.
 3. 🛑 This information includes secrets and should not be checked into source control.
 

@@ -10,7 +10,6 @@ $dark: $gray-900 !default;
 */
 $link-color: $primary;
 
-@import url('../lib/open-iconic/font/css/open-iconic-bootstrap.min.css');
 /* Import either all of Bootstrap, or specific files after overriding above*/
 @import "bootstrap/scss/bootstrap.scss";
 /*@import "bootstrap/scss/_functions.scss";

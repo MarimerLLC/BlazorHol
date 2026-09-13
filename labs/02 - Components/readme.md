@@ -166,7 +166,7 @@ Welcome to the Blazor Hands On Lab App.
 ```
 
 6. Press F5 to run the app.
-7. Notice how the `CurrentCounter` value changes as you change the value in the `Counter` component.
+7. Notice how the `CurrentCount` value changes as you change the value in the `Counter` component.
 
 ## Cascading Parameters
 

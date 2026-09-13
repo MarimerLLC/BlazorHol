@@ -10,6 +10,8 @@ builder.Services.AddRazorComponents()
 
 // Add device-specific services used by the MauiBlazorHol.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddSingleton<IFolderPickerService, FolderPickerService>();
+builder.Services.AddTransient<IPlatformInfo, PlatformInfo>();
 
 var app = builder.Build();
 

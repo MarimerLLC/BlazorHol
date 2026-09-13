@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorRenderModes`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Auto (Server and WebAssembly)
@@ -130,9 +130,12 @@ public class RenderModeProvider(ActiveCircuitState activeCircuitState)
 
 This is the class that will determine the current render mode based on the current environment and the state of the SignalR circuit.
 
-6. In the _server_ project open the `Program.cs` file and add the following code to register services:
+6. In the _server_ project open the `Program.cs` file, add the `using` statements at the top of the file, and add the service registrations before `builder.Build()`:
     
 ```csharp
+using BlazorRenderModes.Services;
+using Microsoft.AspNetCore.Components.Server.Circuits;
+
 builder.Services.AddTransient<RenderModeProvider>();
 builder.Services.AddScoped<ActiveCircuitState>();
 builder.Services.AddScoped(typeof(CircuitHandler), typeof(ActiveCircuitHandler));
@@ -140,9 +143,11 @@ builder.Services.AddScoped(typeof(CircuitHandler), typeof(ActiveCircuitHandler))
 
 This registers the services that will be used to detect the current render mode.
 
-7. In the _client_ project open the `Program.cs` file and add the following code to register services:
+7. In the _client_ project open the `Program.cs` file, add the `using` statement at the top of the file, and add the service registrations before `builder.Build()`:
 
 ```csharp
+using BlazorRenderModes.Services;
+
 builder.Services.AddTransient<RenderModeProvider>();
 builder.Services.AddScoped<ActiveCircuitState>();
 ```

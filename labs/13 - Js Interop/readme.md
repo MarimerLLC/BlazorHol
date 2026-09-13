@@ -9,7 +9,7 @@
 5. Enter the project name: `BlazorHolJsInterop`
 6. Click Next
 7. Use the following options:
-   - Framework: .NET 8.0
+   - Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Interactive render mode: Server
@@ -92,7 +92,7 @@ This code injects the `IJSRuntime` service into the component so we can call Jav
 5. Add the following code to the file to create a canvas element for the chart:
 
 ```html
-<canvas id="myChart" width="400" height="400"></canvas>
+<canvas id="myChart" style="width:100%;height:100%;display:block"></canvas>
 ```
 
 6. Add the following code to the file to create a chart when the component is initialized:
@@ -115,5 +115,5 @@ This code injects the `IJSRuntime` service into the component so we can call Jav
 ## References
 
 - [Chart.js Documentation](https://www.chartjs.org/docs/latest/)
-- [JavaScript Interop in Blazor](https://docs.microsoft.com/en-us/aspnet/core/blazor/call-javascript-from-dotnet?view=aspnetcore-6.0)
+- [JavaScript Interop in Blazor](https://learn.microsoft.com/aspnet/core/blazor/javascript-interoperability/call-javascript-from-dotnet?view=aspnetcore-10.0)
 - [Using Chart.js with Blazor](https://puresourcecode.com/dotnet/blazor/using-chart-js-with-blazor/#:~:text=First%20step%20is%20to%20add%20the%20library%20in,the%20application%20reads%20the%20script%20from%20the%20CDN)

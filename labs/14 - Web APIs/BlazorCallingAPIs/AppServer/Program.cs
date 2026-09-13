@@ -1,4 +1,5 @@
 using AppServer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,13 +16,15 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<IAuthorizationHandler, BearerAuthnHandler>();
+builder.Services.AddAuthentication(BearerAuthnHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, BearerAuthnHandler>(BearerAuthnHandler.SchemeName, null);
+builder.Services.AddSingleton<IAuthorizationHandler, ScopeAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("BearerAuthn", policy =>
+    options.AddPolicy("WeatherRead", policy =>
     {
-        policy.Requirements.Add(new BearerAuthnRequirement());
+        policy.RequireAuthenticatedUser();
+        policy.Requirements.Add(new ScopeRequirement("weather.read"));
     });
 });
 
@@ -33,10 +36,11 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseCors("AllowAllOrigins");
 
-app.MapControllers().RequireAuthorization("BearerAuthn");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers().RequireAuthorization("WeatherRead");
 
 app.Run();

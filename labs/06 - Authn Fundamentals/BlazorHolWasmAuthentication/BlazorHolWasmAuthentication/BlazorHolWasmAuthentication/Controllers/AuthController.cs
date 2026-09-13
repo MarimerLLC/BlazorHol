@@ -17,7 +17,7 @@ public class AuthController(IHttpContextAccessor httpContextAccessor)
             var claims = principal.Claims.Select(c => new Claim { Type = c.Type, Value = c.Value }).ToList();
             return new User
             {
-                Username = principal.Identity.Name,
+                Username = principal.Identity.Name ?? string.Empty,
                 Claims = claims
             };
         }

@@ -3,7 +3,7 @@
 ## Opening the Solution
 
 1. Open Visual Studio
-2. Open the `labs/11/BlazorHolDataAccess.sln` solution
+2. Open the `labs/11 - Accessing Data/BlazorHolDataAccess/BlazorHolDataAccess.sln` solution
 
 This is a Blazor Web App solution that you will finish in this lab.
 
@@ -12,31 +12,31 @@ This is a Blazor Web App solution that you will finish in this lab.
 Sqlite is perhaps the easiest way to get started with using a database in .NET. It is a file-based database that is easy to set up and use. It is not as powerful as SQL Server, but it is a good choice for small applications or for learning purposes.
 
 1. Add the `Microsoft.Data.Sqlite` package to your server project.
-2. Register a database connection service in the `Program.cs` file:
+2. Register a database connection service in the `Program.cs` file (add `using Microsoft.Data.Sqlite;` at the top of the file):
 
 ```csharp
 builder.Services.AddTransient<SqliteConnection>(sp =>
 {
-    var connection = new SqliteConnection("Data Source=BlazorHolData.db");
+    var connection = new SqliteConnection("Data Source=BlazorHolDataAccess.db");
     connection.Open();
     return connection;
 });
 ```
 
-3. There is already a `Data` folder to your server project.
+3. There is already a `Data` folder in your server project.
 4. Add a `Database` class to the `Data` folder.
 
 ```csharp
 using Microsoft.Data.Sqlite;
 
-namespace BlazorHolDataAccess.Data
+namespace BlazorHolDataAccess.Data;
+
+public class Database(SqliteConnection Connection)
 {
-    public class Database(SqliteConnection Connection)
+    public async Task InitializeDatabaseAsync()
     {
-        public async Task InitializeDatabaseAsync()
-        {
-            using var command = Connection.CreateCommand();
-            command.CommandText = @"
+        using var command = Connection.CreateCommand();
+        command.CommandText = @"
                 CREATE TABLE IF NOT EXISTS People (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     FirstName TEXT NOT NULL,
@@ -44,8 +44,7 @@ namespace BlazorHolDataAccess.Data
                     Age INTEGER NOT NULL
                 );
             ";
-            await command.ExecuteNonQueryAsync();
-        }
+        await command.ExecuteNonQueryAsync();
     }
 }
 ```
@@ -58,7 +57,7 @@ This class contains the `InitializeDatabaseAsync` method that creates a `People`
 builder.Services.AddScoped<Database>();
 ```
 
-6. Open the `Home.razor` file in the `Pages` folder of the server project.
+6. Open the `Home.razor` file in the `Components/Pages` folder of the server project.
 7. Inject the `Database` service in the `Home` component:
 
 ```csharp
@@ -105,7 +104,7 @@ public class PersonEntity
 
 ## The Data Access Service
 
-The client `Data` folder contains an `IPersonDal` interface and a `PersonDal` class. The `PersonDal` class implements the `IPersonDal` interface.
+The client `Data` folder contains an `IPersonDal` interface. The `PersonDal` class you will create implements the `IPersonDal` interface.
 
 The `IPersonDal` interface defines the methods that the `PersonDal` class must implement.
 
@@ -219,7 +218,7 @@ This registers the `PersonDal` class as the implementation of the `IPersonDal` i
 
 ## The PersonList Component
 
-1. In the server project, add a `PersonList.razor` file to the `Pages` folder.
+1. In the server project, add a `PersonList.razor` file to the `Components/Pages` folder.
 
 ```html
 @page "/personlist"
@@ -272,7 +271,7 @@ The `PersonList` component has a link to the `PersonEdit` component to add a new
 
 Because this page does not have a `renderMode` attribute, it will be rendered using server-static rendering on the server.
 
-2. Open the `NavMenu.razor` file in the `Layout` folder of the server project.
+2. Open the `NavMenu.razor` file in the `Components/Layout` folder of the server project.
 3. Add a link to the `PersonList` page:
 
 ```html
@@ -280,6 +279,7 @@ Because this page does not have a `renderMode` attribute, it will be rendered us
             <NavLink class="nav-link" href="personlist">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> List People
             </NavLink>
+        </div>
 ```
 
 ## The PersonEdit Component

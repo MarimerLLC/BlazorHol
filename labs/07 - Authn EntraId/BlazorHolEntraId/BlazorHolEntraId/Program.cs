@@ -23,7 +23,10 @@ builder.Services.AddScoped(sp =>
         authorizedUrls: new[] { "https://graph.microsoft.com/v1.0" },
         scopes: new[] { "User.Read" });
 
-    return new HttpClient(authorizationMessageHandler);
+    return new HttpClient(authorizationMessageHandler)
+    {
+        BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+    };
 });
 
 await builder.Build().RunAsync();

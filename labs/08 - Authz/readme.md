@@ -25,7 +25,7 @@
 3. Add the `AuthenticationState` property to the `Home` component.
 
 ```csharp
-    private AuthenticationState AuthenticationState { get; set; }
+    private AuthenticationState? AuthenticationState { get; set; }
 ```
 
 4. Add the `OnInitializedAsync` method to the `Home` component.
@@ -41,7 +41,7 @@
 
 ```html
 <div class="border border-primary">
-    @if (AuthenticationState.User.Identity.IsAuthenticated)
+    @if (AuthenticationState?.User.Identity?.IsAuthenticated == true)
     {
         <p>You are authenticated.</p>
         <p>Username: @AuthenticationState.User.Identity.Name</p>
@@ -82,9 +82,9 @@
 3. Press `F5` to run the app.
 4. Ensure you are logged out.
 5. Navigate to the `Counter` page.
-6. You should see an error 404 message.
+6. You should see the "Not Found" (404) page.
 
-The `Routes.razor` file uses the `AuthorizeRouteView` component to display the `Counter` page only when the user is authenticated.
+The `Routes.razor` file uses the `AuthorizeRouteView` component to display the `Counter` page only when the user is authenticated. Because the page is statically prerendered, the `[Authorize]` attribute is also enforced by the ASP.NET Core authorization middleware, which redirects the unauthenticated user to the cookie authentication handler's default login path (`/Account/Login`). That page doesn't exist in this app, so the `NotFound` page is displayed.
 
 ## Using the AuthorizeView Component
 
@@ -129,11 +129,13 @@ Add the following property to the `Login` component.
     private string ReturnUrl { get; set; } = "/";
 ```
 
-Add an `OnInitialized` method to the `Login` component.
+Replace the `OnInitialized` method in the `Login` component with this code.
 
 ```csharp
     protected override void OnInitialized()
     {
+        userInfo ??= new();
+
         var query = new Uri(NavigationManager.Uri).Query;
         if (!string.IsNullOrEmpty(query))
         {
