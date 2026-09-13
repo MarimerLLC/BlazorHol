@@ -4,12 +4,12 @@
 
 1. Open Visual Studio
 2. Click on Create a new project
-3. Select Standalone WebAssembly Blazor App
+3. Select Blazor WebAssembly Standalone App
 4. Click Next
 5. Enter the project name: `BlazorHolPwa`
 6. Click Next
 7. Use the following options:
-   - Target Framework: .NET 8.0
+   - Target Framework: .NET 10.0
    - Authentication Type: None
    - Configure for HTTPS: Checked
    - Progressive Web Application: Checked
@@ -20,6 +20,7 @@
 
 1. Open the `BlazorHolPwa.csproj` file
 2. Notice the `<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>` element
+   - Also notice the `<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>` element, which lets the build replace placeholders in `wwwroot/index.html` (such as `_framework/blazor.webassembly#[.{fingerprint}].js`) with fingerprinted file names
 3. Notice the service worker file:
 
 ```xml
@@ -86,7 +87,7 @@ builder.Services.AddBlazoredLocalStorage();
         }
     }
 
-    private async void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
         await LocalStorage.SetItemAsync("myInfo", myInfo);
         message = "Data saved to local storage.";
@@ -105,7 +106,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 1. Run the app
 2. Add some data
-3. Click Save
+3. Click Submit
 4. Open the browser's developer tools
 5. Go to the Application tab
 6. Click on Local Storage

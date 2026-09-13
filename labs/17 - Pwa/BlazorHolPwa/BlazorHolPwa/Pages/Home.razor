@@ -37,7 +37,7 @@
         }
     }
 
-    private async void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
         await LocalStorage.SetItemAsync("myInfo", myInfo);
         message = "Data saved to local storage.";
