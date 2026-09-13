@@ -21,7 +21,7 @@ builder.Services.AddAuthentication(BearerAuthnHandler.SchemeName)
 builder.Services.AddSingleton<IAuthorizationHandler, ScopeAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("BearerAuthn", policy =>
+    options.AddPolicy("WeatherRead", policy =>
     {
         policy.RequireAuthenticatedUser();
         policy.Requirements.Add(new ScopeRequirement("weather.read"));
@@ -41,6 +41,6 @@ app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers().RequireAuthorization("BearerAuthn");
+app.MapControllers().RequireAuthorization("WeatherRead");
 
 app.Run();

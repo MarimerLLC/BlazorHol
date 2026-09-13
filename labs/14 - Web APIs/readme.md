@@ -325,7 +325,7 @@ builder.Services.AddAuthentication(BearerAuthnHandler.SchemeName)
 builder.Services.AddSingleton<IAuthorizationHandler, ScopeAuthorizationHandler>();
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("BearerAuthn", policy =>
+    options.AddPolicy("WeatherRead", policy =>
     {
         policy.RequireAuthenticatedUser();
         policy.Requirements.Add(new ScopeRequirement("weather.read"));
@@ -333,7 +333,7 @@ builder.Services.AddAuthorization(options =>
 });
 ```
 
-The `BearerAuthn` policy requires an authenticated caller that also has the `weather.read` scope.
+The `WeatherRead` policy requires an authenticated caller that also has the `weather.read` scope.
 
 4. Add authentication to the request pipeline in the `Program.cs` file, between the `app.UseCors` and `app.UseAuthorization` calls
 
@@ -347,7 +347,7 @@ app.UseAuthorization();
 5. Use the policy for all controllers in the `Program.cs` file in the `AppServer` project
 
 ```csharp
-app.MapControllers().RequireAuthorization("BearerAuthn");
+app.MapControllers().RequireAuthorization("WeatherRead");
 ```
 
 ### Supplying the token
