@@ -26,9 +26,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
   .AddCookie();
 builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddAuthorization(c => c
-    .AddPolicy("IsAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin")));
-
 builder.Services.AddTransient<UserValidation>();
 
 var app = builder.Build();
