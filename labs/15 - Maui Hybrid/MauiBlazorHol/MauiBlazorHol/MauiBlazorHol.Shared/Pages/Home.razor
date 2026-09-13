@@ -1,6 +1,8 @@
-﻿@page "/"
+@page "/"
 @using MauiBlazorHol.Shared.Services
 @inject IFormFactor FormFactor
+@inject IFolderPickerService FolderPicker
+@inject IPlatformInfo PlatformInfo
 
 <PageTitle>Home</PageTitle>
 
@@ -8,7 +10,25 @@
 
 Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
 
+<div class="border border-secondary">
+    <textarea rows="10">@Output</textarea>
+    <br />
+    <button class="btn btn-primary" @onclick="PickFolder">Pick Folder</button>
+</div>
+
+<div class="border border-secondary">
+    <textarea rows="10">@Platform</textarea>
+</div>
+
 @code {
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
+
+    private string Output { get; set; } = string.Empty;
+    private string Platform => PlatformInfo.GetInfo().ToString();
+
+    private async Task PickFolder()
+    {
+        Output = await FolderPicker.PickFolderAsync();
+    }
 }

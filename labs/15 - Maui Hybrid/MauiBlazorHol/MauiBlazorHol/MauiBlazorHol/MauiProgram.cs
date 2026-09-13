@@ -1,4 +1,6 @@
-﻿using MauiBlazorHol.Services;
+﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Storage;
+using MauiBlazorHol.Services;
 using MauiBlazorHol.Shared.Services;
 using Microsoft.Extensions.Logging;
 
@@ -14,10 +16,15 @@ namespace MauiBlazorHol
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+                })
+                .UseMauiCommunityToolkit();
+
+            builder.Services.AddSingleton<IFolderPicker>(FolderPicker.Default);
 
             // Add device-specific services used by the MauiBlazorHol.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
+            builder.Services.AddSingleton<IFolderPickerService, FolderPickerService>();
+            builder.Services.AddTransient<IPlatformInfo, PlatformInfo>();
 
             builder.Services.AddMauiBlazorWebView();
 
