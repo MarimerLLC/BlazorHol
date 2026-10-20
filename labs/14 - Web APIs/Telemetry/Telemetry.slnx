@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Telemetry.AppHost/Telemetry.AppHost.csproj" />
+  <Project Path="Telemetry.Client/Telemetry.Client.csproj" />
+  <Project Path="Telemetry.ServiceDefaults/Telemetry.ServiceDefaults.csproj" />
+  <Project Path="Telemetry/Telemetry.csproj" />
+</Solution>

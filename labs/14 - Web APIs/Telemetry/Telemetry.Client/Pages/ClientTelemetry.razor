@@ -1,0 +1,170 @@
+@page "/client-telemetry"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@using System.Diagnostics
+@using Microsoft.Extensions.Logging
+@using Telemetry.Client.Models
+@using Telemetry.Client.Observability
+@implements IDisposable
+@inject HttpClient Http
+@inject ILogger<ClientTelemetry> Logger
+@inject TelemetryShipper Shipper
+
+<PageTitle>Client Telemetry</PageTitle>
+
+<h1>Client Telemetry</h1>
+
+<p>
+    This component runs in WebAssembly, in the browser. It creates OpenTelemetry spans,
+    metrics, and logs that are sent to the server's <code>/otlp</code> proxy and
+    forwarded to the Aspire dashboard as the <code>@ClientDiagnostics.ServiceName</code> service.
+</p>
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-primary" @onclick="LoadWeather" disabled="@busy">Load weather from API</button>
+    <button class="btn btn-secondary" @onclick="DoClientWork" disabled="@busy">Do client-side work</button>
+    <button class="btn btn-danger" @onclick="FailOperation" disabled="@busy">Fail an operation</button>
+    <button class="btn btn-outline-secondary" @onclick="Shipper.FlushAsync">Send telemetry now</button>
+</div>
+
+@if (lastTraceId is not null)
+{
+    <p>
+        Last trace id: <code>@lastTraceId</code>
+        <br />
+        <small class="text-muted">Search for this id on the Traces page of the Aspire dashboard.</small>
+    </p>
+}
+
+@if (message is not null)
+{
+    <div class="alert alert-info">@message</div>
+}
+
+@if (forecasts is not null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 class="h5 mt-4">Telemetry sent from this tab</h2>
+<ul>
+    <li>Spans: @Shipper.SpansSent</li>
+    <li>Log records: @Shipper.LogsSent</li>
+    <li>Metric exports: @Shipper.MetricExports</li>
+    <li>Last sent: @(Shipper.LastFlush?.ToLongTimeString() ?? "not yet")</li>
+    @if (Shipper.LastError is not null)
+    {
+        <li class="text-danger">Last error: @Shipper.LastError</li>
+    }
+</ul>
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private string? lastTraceId;
+    private string? message;
+    private bool busy;
+
+    protected override void OnInitialized()
+    {
+        Shipper.Flushed += OnFlushed;
+    }
+
+    private async Task LoadWeather()
+    {
+        ClientDiagnostics.ButtonClicks.Add(1, new KeyValuePair<string, object?>("demo.action", "load-weather"));
+
+        // Parent span; the HTTP client span and the server's spans become its children
+        using var activity = ClientDiagnostics.ActivitySource.StartActivity("Load weather");
+        lastTraceId = activity?.TraceId.ToHexString();
+        busy = true;
+        message = null;
+        try
+        {
+            var stopwatch = Stopwatch.StartNew();
+            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("api/weather?days=5");
+            stopwatch.Stop();
+
+            ClientDiagnostics.WeatherLoadDuration.Record(stopwatch.Elapsed.TotalMilliseconds);
+            activity?.SetTag("weather.count", forecasts?.Length ?? 0);
+            Logger.LogInformation("Loaded {ForecastCount} forecasts in {ElapsedMs:0} ms",
+                forecasts?.Length ?? 0, stopwatch.Elapsed.TotalMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.AddException(ex);
+            Logger.LogError(ex, "Failed to load weather");
+            message = $"Failed to load weather: {ex.Message}";
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+
+    private async Task DoClientWork()
+    {
+        ClientDiagnostics.ButtonClicks.Add(1, new KeyValuePair<string, object?>("demo.action", "client-work"));
+
+        using var activity = ClientDiagnostics.ActivitySource.StartActivity("Client-side work");
+        lastTraceId = activity?.TraceId.ToHexString();
+        busy = true;
+        message = null;
+
+        // Child spans show up nested under the parent in the dashboard's trace view
+        foreach (var step in new[] { "Validate input", "Calculate totals", "Update UI state" })
+        {
+            using var child = ClientDiagnostics.ActivitySource.StartActivity(step);
+            var delay = Random.Shared.Next(50, 250);
+            child?.SetTag("demo.delay_ms", delay);
+            await Task.Delay(delay);
+        }
+
+        activity?.AddEvent(new ActivityEvent("Work complete"));
+        Logger.LogInformation("Completed client-side work");
+        message = "Client-side work complete.";
+        busy = false;
+    }
+
+    private void FailOperation()
+    {
+        ClientDiagnostics.ButtonClicks.Add(1, new KeyValuePair<string, object?>("demo.action", "fail"));
+
+        using var activity = ClientDiagnostics.ActivitySource.StartActivity("Failing operation");
+        lastTraceId = activity?.TraceId.ToHexString();
+        try
+        {
+            throw new InvalidOperationException("Something went wrong in the browser");
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.AddException(ex);
+            Logger.LogError(ex, "Operation failed in the browser");
+            message = $"Operation failed: {ex.Message}";
+        }
+    }
+
+    private void OnFlushed() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Shipper.Flushed -= OnFlushed;
+}
