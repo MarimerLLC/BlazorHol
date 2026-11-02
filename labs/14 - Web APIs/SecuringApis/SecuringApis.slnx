@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="ApiServer/ApiServer.csproj" />
   <Project Path="AuthServer/AuthServer.csproj" />
+  <Project Path="BlazorClient/BlazorClient.csproj" />
   <Project Path="JwtClient/JwtClient.csproj" />
   <Project Path="OAuthClient/OAuthClient.csproj" />
 </Solution>

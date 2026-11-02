@@ -1,0 +1,23 @@
+@using BlazorClient.Services
+
+@if (Token is not null)
+{
+    <div class="alert @(Token.Succeeded ? "alert-success" : "alert-danger")">
+        Token response: <strong>@Token.Status</strong>
+    </div>
+
+    @if (Token.Succeeded)
+    {
+        <p>Token payload:</p>
+        <pre class="bg-light border rounded p-2">@Token.Payload</pre>
+    }
+    else if (!string.IsNullOrWhiteSpace(Token.Error))
+    {
+        <pre class="bg-light border rounded p-2">@Token.Error</pre>
+    }
+}
+
+@code {
+    [Parameter]
+    public TokenResult? Token { get; set; }
+}

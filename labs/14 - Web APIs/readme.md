@@ -422,7 +422,7 @@ The hardcoded tokens used so far are fine for learning how authentication and au
 
 In both cases the token is a JWT, and the API uses the same ASP.NET Core `JwtBearer` handler to validate it. The difference is _who issues the token_ and _how the API gets the key to check it_.
 
-You'll create four projects:
+You'll create five projects:
 
 | Project | Purpose |
 | --- | --- |
@@ -430,6 +430,7 @@ You'll create four projects:
 | `ApiServer` | A Web API with one endpoint secured by JWT and one secured by OAuth |
 | `JwtClient` | A console app that calls the JWT endpoint |
 | `OAuthClient` | A console app that calls the OAuth endpoint |
+| `BlazorClient` | A Blazor Web App with a page for each endpoint |
 
 > ℹ️ The completed solution is in the `SecuringApis` folder of this lab.
 
@@ -458,6 +459,16 @@ You'll create four projects:
 15. Select Console App, click Next, and enter the project name: `JwtClient`
 16. Click Next, select .NET 10.0, and click Create
 17. Repeat steps 14-16 to add another Console App named `OAuthClient`
+18. Right-click on the solution and click Add > New Project
+19. Select Blazor Web App, click Next, and enter the project name: `BlazorClient`
+20. Click Next and use the following options:
+    - Framework: .NET 10.0
+    - Authentication Type: None
+    - Configure for HTTPS: Checked
+    - Interactive render mode: Server
+    - Interactivity location: Per page/component
+    - Include sample pages: Checked
+21. Click Create
 
 ### Setting the port numbers
 
@@ -483,6 +494,17 @@ The projects call each other, so it is easiest if they use known port numbers.
 
 ```json
       "applicationUrl": "https://localhost:7201;http://localhost:5201",
+```
+
+5. Open the `Properties/launchSettings.json` file in the `BlazorClient` project
+6. Change the `applicationUrl` values so the `https` profile uses port `7301` and the `http` profile uses port `5301`
+
+```json
+      "applicationUrl": "http://localhost:5301",
+```
+
+```json
+      "applicationUrl": "https://localhost:7301;http://localhost:5301",
 ```
 
 ## Building the OAuth Authorization Server
@@ -1267,6 +1289,549 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary);
 
 The client gets a token from the `AuthServer` using the client credentials flow, then calls the `ApiServer` with it. The `ApiServer` and `AuthServer` never talk to each other about this client; the API trusts the token because it is signed by the authorization server's key and has the right issuer and audience.
 
+## Calling the APIs from a Blazor app
+
+The `BlazorClient` app has a page for each endpoint. Both pages use Interactive Server rendering, so all the token handling and API calls run on the server, not in the browser. This matters for two reasons:
+
+- The client credentials flow needs a client secret. Code that runs in the browser (WebAssembly) can be downloaded and read by anyone, so it must never contain a client secret. Server code can keep the secret in configuration.
+- The API calls come from the Blazor server, not from the browser, so the `ApiServer` and `AuthServer` don't need CORS.
+
+> ℹ️ A Blazor WebAssembly app that calls an OAuth-secured API would sign the _user_ in with the authorization code + PKCE flow instead, as you saw with Entra ID in lab 07.
+
+### Adding the configuration
+
+1. Add the server URLs to the `appsettings.json` file in the `BlazorClient` project
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ApiServer": "https://localhost:7201/",
+  "AuthServer": "https://localhost:7101/"
+}
+```
+
+2. Add the OAuth client secrets to the `appsettings.Development.json` file in the `BlazorClient` project
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  // Demo-only client secrets for the AuthServer. In a real app, keep these out of
+  // source control (user secrets, environment variables, or a key vault).
+  "OAuthClients": {
+    "weather-client": "weather-client-secret",
+    "alerts-client": "alerts-client-secret"
+  }
+}
+```
+
+### Adding the API client services
+
+3. Add a `Services` folder to the `BlazorClient` project
+4. Add an `ApiModels` class to the `Services` folder
+
+```csharp
+using System.Net;
+using System.Text;
+using System.Text.Json;
+
+namespace BlazorClient.Services;
+
+public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary);
+
+/// <summary>
+/// The outcome of a token request: the access token if one was issued,
+/// otherwise the error returned by the token endpoint.
+/// </summary>
+public record TokenResult(HttpStatusCode StatusCode, string? AccessToken, string? Error)
+{
+    public bool Succeeded => AccessToken is not null;
+
+    public string Status => $"{(int)StatusCode} {StatusCode}";
+
+    // A JWT is three base64url segments: header.payload.signature.
+    // The payload is readable by anyone; the signature is what makes it trustworthy.
+    public string? Payload
+    {
+        get
+        {
+            if (AccessToken is null)
+            {
+                return null;
+            }
+            var payload = AccessToken.Split('.')[1].Replace('-', '+').Replace('_', '/');
+            payload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+            var json = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+            return JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+        }
+    }
+}
+
+/// <summary>
+/// The outcome of a call to a weather forecast endpoint.
+/// </summary>
+public record ApiCallResult(HttpStatusCode StatusCode, WeatherForecast[]? Forecasts)
+{
+    public string Status => $"{(int)StatusCode} {StatusCode}";
+}
+```
+
+These types hold the result of each step, including failures, so the pages can show what happened.
+
+5. Add a `JwtApiClient` class to the `Services` folder
+
+```csharp
+using System.Net.Http.Headers;
+
+namespace BlazorClient.Services;
+
+/// <summary>
+/// Calls the ApiServer's JWT-protected endpoint. The ApiServer issues its own
+/// tokens: POST a username and password to /jwt/token.
+/// </summary>
+public class JwtApiClient(HttpClient http)
+{
+    public async Task<TokenResult> GetTokenAsync(string username, string password)
+    {
+        var response = await http.PostAsJsonAsync("jwt/token", new { username, password });
+        if (!response.IsSuccessStatusCode)
+        {
+            return new TokenResult(response.StatusCode, null, await response.Content.ReadAsStringAsync());
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<JwtTokenResponse>();
+        return new TokenResult(response.StatusCode, result!.AccessToken, null);
+    }
+
+    public async Task<ApiCallResult> GetForecastAsync(string? token)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "jwt/weatherforecast");
+        if (token is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var response = await http.SendAsync(request);
+        var forecasts = response.IsSuccessStatusCode
+            ? await response.Content.ReadFromJsonAsync<WeatherForecast[]>()
+            : null;
+        return new ApiCallResult(response.StatusCode, forecasts);
+    }
+
+    private record JwtTokenResponse(string AccessToken, string TokenType, int ExpiresIn);
+}
+```
+
+6. Add an `OAuthApiClient` class to the `Services` folder
+
+```csharp
+using System.Net.Http.Headers;
+using System.Text.Json.Serialization;
+
+namespace BlazorClient.Services;
+
+/// <summary>
+/// Calls the ApiServer's OAuth-protected endpoint. Access tokens come from the
+/// AuthServer using the OAuth 2.0 client credentials flow.
+/// </summary>
+/// <remarks>
+/// The client secrets are read from this app's server-side configuration. This
+/// code runs on the server (Interactive Server rendering), so the secrets are
+/// never sent to the browser. Never put a client secret in WebAssembly code.
+/// </remarks>
+public class OAuthApiClient(HttpClient http, IConfiguration configuration)
+{
+    public static readonly string[] ClientIds = ["weather-client", "alerts-client"];
+
+    public static readonly string[] Scopes = ["weather.read", "alerts.read"];
+
+    public async Task<TokenResult> GetTokenAsync(string clientId, string scope)
+    {
+        var tokenEndpoint = new Uri(new Uri(configuration["AuthServer"]!), "connect/token");
+        var clientSecret = configuration[$"OAuthClients:{clientId}"]
+            ?? throw new InvalidOperationException($"No client secret is configured for {clientId}.");
+
+        // The token request is a form post, as defined by the OAuth 2.0 spec
+        var response = await http.PostAsync(tokenEndpoint, new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials",
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret,
+                ["scope"] = scope
+            }));
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return new TokenResult(response.StatusCode, null, await response.Content.ReadAsStringAsync());
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<OAuthTokenResponse>();
+        return new TokenResult(response.StatusCode, result!.AccessToken, null);
+    }
+
+    public async Task<ApiCallResult> GetForecastAsync(string? token)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "oauth/weatherforecast");
+        if (token is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var response = await http.SendAsync(request);
+        var forecasts = response.IsSuccessStatusCode
+            ? await response.Content.ReadFromJsonAsync<WeatherForecast[]>()
+            : null;
+        return new ApiCallResult(response.StatusCode, forecasts);
+    }
+
+    // OAuth token responses use snake_case property names
+    private record OAuthTokenResponse(
+        [property: JsonPropertyName("access_token")] string AccessToken,
+        [property: JsonPropertyName("token_type")] string TokenType,
+        [property: JsonPropertyName("expires_in")] int ExpiresIn);
+}
+```
+
+These are the same calls the console apps make, wrapped in services that the Blazor pages can inject.
+
+7. Register the services as typed `HttpClient`s in the `Program.cs` file in the `BlazorClient` project (add `using BlazorClient.Services;` at the top of the file), after the call to `AddInteractiveServerComponents()`
+
+```csharp
+// Typed HttpClients for calling the ApiServer
+var apiServer = new Uri(builder.Configuration["ApiServer"]!);
+builder.Services.AddHttpClient<JwtApiClient>(client => client.BaseAddress = apiServer);
+builder.Services.AddHttpClient<OAuthApiClient>(client => client.BaseAddress = apiServer);
+```
+
+`AddHttpClient` registers each service and gives it an `HttpClient` whose `BaseAddress` points at the `ApiServer`. Using `IHttpClientFactory` this way is better than creating a `new HttpClient()` for each call, because the factory reuses network connections.
+
+### Adding components to show the results
+
+8. Add a `TokenDetails.razor` component to the `Components` folder
+
+```html
+@using BlazorClient.Services
+
+@if (Token is not null)
+{
+    <div class="alert @(Token.Succeeded ? "alert-success" : "alert-danger")">
+        Token response: <strong>@Token.Status</strong>
+    </div>
+
+    @if (Token.Succeeded)
+    {
+        <p>Token payload:</p>
+        <pre class="bg-light border rounded p-2">@Token.Payload</pre>
+    }
+    else if (!string.IsNullOrWhiteSpace(Token.Error))
+    {
+        <pre class="bg-light border rounded p-2">@Token.Error</pre>
+    }
+}
+
+@code {
+    [Parameter]
+    public TokenResult? Token { get; set; }
+}
+```
+
+9. Add a `ForecastResult.razor` component to the `Components` folder
+
+```html
+@using BlazorClient.Services
+
+@if (Result is not null)
+{
+    <div class="alert @(Result.Forecasts is null ? "alert-danger" : "alert-success")">
+        API response: <strong>@Result.Status</strong>
+    </div>
+
+    @if (Result.Forecasts is not null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in Result.Forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    [Parameter]
+    public ApiCallResult? Result { get; set; }
+}
+```
+
+### Adding the JWT Weather page
+
+10. Add a `JwtWeather.razor` page to the `Components/Pages` folder
+
+```html
+@page "/jwtweather"
+@rendermode InteractiveServer
+@using BlazorClient.Services
+@inject JwtApiClient Api
+
+<PageTitle>JWT Weather</PageTitle>
+
+<h1>JWT Weather</h1>
+
+<p>
+    Calls <code>/jwt/weatherforecast</code> on the ApiServer. The ApiServer issues its own JWTs:
+    sign in with a username and password to get one. Demo users are
+    <code>alice</code> / <code>alice-password</code> (has the <code>weather.read</code> scope) and
+    <code>bob</code> / <code>bob-password</code> (no scopes).
+</p>
+
+<h2 class="h4">1. Get a token</h2>
+
+<div class="row g-2 mb-3">
+    <div class="col-sm-4">
+        <label class="form-label" for="username">Username</label>
+        <input id="username" class="form-control" @bind="username" />
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label" for="password">Password</label>
+        <input id="password" class="form-control" type="password" @bind="password" />
+    </div>
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="GetToken">Get token</button>
+    <button class="btn btn-outline-secondary" @onclick="ClearToken" disabled="@(token is null)">Clear token</button>
+</div>
+
+<TokenDetails Token="token" />
+
+<h2 class="h4">2. Call the API</h2>
+
+<p>
+    @if (token?.AccessToken is null)
+    {
+        <text>No token: the request will be sent without an <code>Authorization</code> header.</text>
+    }
+    else
+    {
+        <text>The request will send the token in an <code>Authorization: Bearer</code> header.</text>
+    }
+</p>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="CallApi">Call API</button>
+</div>
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+
+<ForecastResult Result="result" />
+
+@code {
+    private string username = "alice";
+    private string password = "alice-password";
+    private TokenResult? token;
+    private ApiCallResult? result;
+    private string? errorMessage;
+
+    private async Task GetToken()
+    {
+        errorMessage = null;
+        result = null;
+        try
+        {
+            token = await Api.GetTokenAsync(username, password);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the ApiServer. Is it running? ({ex.Message})";
+        }
+    }
+
+    private void ClearToken()
+    {
+        token = null;
+        result = null;
+    }
+
+    private async Task CallApi()
+    {
+        errorMessage = null;
+        try
+        {
+            result = await Api.GetForecastAsync(token?.AccessToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the ApiServer. Is it running? ({ex.Message})";
+        }
+    }
+}
+```
+
+The token is kept in a field of the page component, so it lasts as long as the page is open. If you navigate away, the token is lost and you need to get a new one. A real app would keep the token in a scoped service, or use ASP.NET Core authentication to sign the user in.
+
+### Adding the OAuth Weather page
+
+11. Add an `OAuthWeather.razor` page to the `Components/Pages` folder
+
+```html
+@page "/oauthweather"
+@rendermode InteractiveServer
+@using BlazorClient.Services
+@inject OAuthApiClient Api
+
+<PageTitle>OAuth Weather</PageTitle>
+
+<h1>OAuth Weather</h1>
+
+<p>
+    Calls <code>/oauth/weatherforecast</code> on the ApiServer. Tokens come from the AuthServer
+    using the OAuth 2.0 client credentials flow. This page runs on the server, so the client secrets
+    stay in the server's configuration and are never sent to the browser.
+</p>
+
+<h2 class="h4">1. Get a token</h2>
+
+<div class="row g-2 mb-3">
+    <div class="col-sm-4">
+        <label class="form-label" for="client">Client</label>
+        <select id="client" class="form-select" @bind="clientId">
+            @foreach (var id in OAuthApiClient.ClientIds)
+            {
+                <option value="@id">@id</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label" for="scope">Scope</label>
+        <select id="scope" class="form-select" @bind="scope">
+            @foreach (var s in OAuthApiClient.Scopes)
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="GetToken">Get token</button>
+    <button class="btn btn-outline-secondary" @onclick="ClearToken" disabled="@(token is null)">Clear token</button>
+</div>
+
+<TokenDetails Token="token" />
+
+<h2 class="h4">2. Call the API</h2>
+
+<p>
+    @if (token?.AccessToken is null)
+    {
+        <text>No token: the request will be sent without an <code>Authorization</code> header.</text>
+    }
+    else
+    {
+        <text>The request will send the token in an <code>Authorization: Bearer</code> header.</text>
+    }
+</p>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="CallApi">Call API</button>
+</div>
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+
+<ForecastResult Result="result" />
+
+@code {
+    private string clientId = OAuthApiClient.ClientIds[0];
+    private string scope = OAuthApiClient.Scopes[0];
+    private TokenResult? token;
+    private ApiCallResult? result;
+    private string? errorMessage;
+
+    private async Task GetToken()
+    {
+        errorMessage = null;
+        result = null;
+        try
+        {
+            token = await Api.GetTokenAsync(clientId, scope);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the AuthServer. Is it running? ({ex.Message})";
+        }
+    }
+
+    private void ClearToken()
+    {
+        token = null;
+        result = null;
+    }
+
+    private async Task CallApi()
+    {
+        errorMessage = null;
+        try
+        {
+            result = await Api.GetForecastAsync(token?.AccessToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the ApiServer. Is it running? ({ex.Message})";
+        }
+    }
+}
+```
+
+Notice that the page only chooses a client id; the secret is looked up by `OAuthApiClient` on the server.
+
+### Adding the pages to the navigation menu
+
+12. Add the new pages to the `NavMenu.razor` file in the `Components/Layout` folder, after the `Weather` link
+
+```html
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="jwtweather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> JWT Weather
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="oauthweather">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> OAuth Weather
+            </NavLink>
+        </div>
+```
+
 ## Running the Solution
 
 ### Configure Startup Projects
@@ -1276,14 +1841,15 @@ The client gets a token from the `AuthServer` using the client credentials flow,
 3. Select Multiple startup projects
 4. Set the Action for the `AuthServer` project to Start
 5. Set the Action for the `ApiServer` project to Start
-6. Leave the Action for the `JwtClient` and `OAuthClient` projects set to None
-7. Click OK
+6. Set the Action for the `BlazorClient` project to Start
+7. Leave the Action for the `JwtClient` and `OAuthClient` projects set to None
+8. Click OK
 
-The console apps are not startup projects because they call the APIs as soon as they start, before the servers are ready.
+The console apps are not startup projects because they call the APIs as soon as they start, before the servers are ready. The `BlazorClient` can start with the servers, because it only calls the APIs when you click a button.
 
 ### Running the JWT client
 
-1. Press F5 to start the `AuthServer` and `ApiServer`
+1. Press F5 to start the `AuthServer`, `ApiServer`, and `BlazorClient`
 2. Right-click the `JwtClient` project and click Debug > Start New Instance
 3. Look at the output
    - With no token, the API returns `401 Unauthorized`
@@ -1300,6 +1866,21 @@ The console apps are not startup projects because they call the APIs as soon as 
    - `alerts-client` asks for the `weather.read` scope, which it isn't allowed, so the _authorization server_ refuses to issue a token and returns `400 Bad Request`
    - `alerts-client` asks for the `alerts.read` scope and gets a valid token for `weather-api`, but the API requires `weather.read`, so the API returns `403 Forbidden`
 6. Notice the claims in the OAuth token: `iss` is the `AuthServer`, `aud` is `weather-api`, and `sub` and `client_id` identify the calling client application, not a user
+
+### Running the Blazor client
+
+7. Switch to the browser window for the `BlazorClient`
+8. Navigate to the `JWT Weather` page
+   - Click `Call API` without getting a token, and notice the `401 Unauthorized` response
+   - Click `Get token` to get a token for `alice`, look at the claims in the token payload, then click `Call API` to see the weather data
+   - Change the user to `bob` (password `bob-password`), get a token, and call the API; notice the `403 Forbidden` response
+   - Change the password to something wrong and click `Get token`; notice the `401 Unauthorized` response from the token endpoint
+9. Navigate to the `OAuth Weather` page
+   - Click `Call API` without getting a token, and notice the `401 Unauthorized` response
+   - Get a token for `weather-client` with the `weather.read` scope, then call the API to see the weather data
+   - Select `alerts-client` and click `Get token`; the `AuthServer` refuses because `alerts-client` isn't allowed the `weather.read` scope
+   - Select the `alerts.read` scope, get a token, and call the API; notice the `403 Forbidden` response
+10. Open the browser developer tools (F12) and look at the Network tab while you click the buttons. Notice that the browser never sends a request to the `ApiServer` or `AuthServer`; the button clicks travel over the Blazor Server connection, and the Blazor server makes the HTTP calls.
 
 ### Comparing the two approaches
 
