@@ -1,0 +1,15 @@
+@AuthServer_HostAddress = https://localhost:7101
+
+### Discovery document: describes the server's endpoints and key location
+GET {{AuthServer_HostAddress}}/.well-known/openid-configuration
+Accept: application/json
+
+### Public signing keys used by APIs to validate access tokens
+GET {{AuthServer_HostAddress}}/.well-known/jwks
+Accept: application/json
+
+### Client credentials flow: get an access token for weather-client
+POST {{AuthServer_HostAddress}}/connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id=weather-client&client_secret=weather-client-secret&scope=weather.read
