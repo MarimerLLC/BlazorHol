@@ -1,6 +1,6 @@
 ﻿@page "/personedit"
 @page "/personedit/{id:int}"
-@rendermode InteractiveWebAssembly
+@rendermode InteractiveAuto
 
 @using BlazorHolDataAccess.Client.Shared
 @using BlazorHolDataAccess.Data
@@ -8,7 +8,7 @@
 @inject IPersonDal personDal
 @inject NavigationManager NavigationManager
 
-<h3>PersonEdit</h3>
+<h3>Person Edit</h3>
 
 <div class="alert-danger">@ErrorMessage</div>
 
