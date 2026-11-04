@@ -9,7 +9,7 @@
 
   <ItemGroup>
       <ProjectReference Include="..\BlazorHolDataAccess.Client\BlazorHolDataAccess.Client.csproj" />
-      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.12" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.14" />
       <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.12" />
       <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
   </ItemGroup>
