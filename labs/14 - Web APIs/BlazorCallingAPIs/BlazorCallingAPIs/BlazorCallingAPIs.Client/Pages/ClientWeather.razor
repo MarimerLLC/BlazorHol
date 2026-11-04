@@ -56,8 +56,10 @@ else
         if (renderMode.IsInteractive())
         {
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "MyBearerTokenValue");
-            forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7285/weatherforecast");
+            httpClient.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Bearer", "MyBearerTokenValue");
+            forecasts = await httpClient.GetFromJsonAsync<WeatherForecast[]>(
+                "https://localhost:7285/weatherforecast");
         }
 
 
