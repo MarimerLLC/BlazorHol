@@ -1,0 +1,100 @@
+@page "/jwtweather"
+@rendermode InteractiveServer
+@using BlazorClient.Services
+@inject JwtApiClient Api
+
+<PageTitle>JWT Weather</PageTitle>
+
+<h1>JWT Weather</h1>
+
+<p>
+    Calls <code>/jwt/weatherforecast</code> on the ApiServer. The ApiServer issues its own JWTs:
+    sign in with a username and password to get one. Demo users are
+    <code>alice</code> / <code>alice-password</code> (has the <code>weather.read</code> scope) and
+    <code>bob</code> / <code>bob-password</code> (no scopes).
+</p>
+
+<h2 class="h4">1. Get a token</h2>
+
+<div class="row g-2 mb-3">
+    <div class="col-sm-4">
+        <label class="form-label" for="username">Username</label>
+        <input id="username" class="form-control" @bind="username" />
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label" for="password">Password</label>
+        <input id="password" class="form-control" type="password" @bind="password" />
+    </div>
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="GetToken">Get token</button>
+    <button class="btn btn-outline-secondary" @onclick="ClearToken" disabled="@(token is null)">Clear token</button>
+</div>
+
+<TokenDetails Token="token" />
+
+<h2 class="h4">2. Call the API</h2>
+
+<p>
+    @if (token?.AccessToken is null)
+    {
+        <text>No token: the request will be sent without an <code>Authorization</code> header.</text>
+    }
+    else
+    {
+        <text>The request will send the token in an <code>Authorization: Bearer</code> header.</text>
+    }
+</p>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="CallApi">Call API</button>
+</div>
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+
+<ForecastResult Result="result" />
+
+@code {
+    private string username = "alice";
+    private string password = "alice-password";
+    private TokenResult? token;
+    private ApiCallResult? result;
+    private string? errorMessage;
+
+    private async Task GetToken()
+    {
+        errorMessage = null;
+        result = null;
+        try
+        {
+            token = await Api.GetTokenAsync(username, password);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the ApiServer. Is it running? ({ex.Message})";
+        }
+    }
+
+    private void ClearToken()
+    {
+        token = null;
+        result = null;
+    }
+
+    private async Task CallApi()
+    {
+        errorMessage = null;
+        try
+        {
+            result = await Api.GetForecastAsync(token?.AccessToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the ApiServer. Is it running? ({ex.Message})";
+        }
+    }
+}

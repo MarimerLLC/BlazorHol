@@ -1,0 +1,38 @@
+@ApiServer_HostAddress = https://localhost:7201
+
+### JWT: no token -> 401 Unauthorized
+GET {{ApiServer_HostAddress}}/jwt/weatherforecast
+Accept: application/json
+
+### JWT: get a token for alice (has the weather.read scope)
+# @name aliceToken
+POST {{ApiServer_HostAddress}}/jwt/token
+Content-Type: application/json
+
+{ "username": "alice", "password": "alice-password" }
+
+### JWT: alice's token -> 200 OK
+GET {{ApiServer_HostAddress}}/jwt/weatherforecast
+Accept: application/json
+Authorization: Bearer {{aliceToken.response.body.$.accessToken}}
+
+### JWT: get a token for bob (no weather.read scope)
+# @name bobToken
+POST {{ApiServer_HostAddress}}/jwt/token
+Content-Type: application/json
+
+{ "username": "bob", "password": "bob-password" }
+
+### JWT: bob's token -> 403 Forbidden
+GET {{ApiServer_HostAddress}}/jwt/weatherforecast
+Accept: application/json
+Authorization: Bearer {{bobToken.response.body.$.accessToken}}
+
+### OAuth: no token -> 401 Unauthorized
+GET {{ApiServer_HostAddress}}/oauth/weatherforecast
+Accept: application/json
+
+### OAuth: a JWT from this API is not accepted on the OAuth endpoint -> 401 Unauthorized
+GET {{ApiServer_HostAddress}}/oauth/weatherforecast
+Accept: application/json
+Authorization: Bearer {{aliceToken.response.body.$.accessToken}}

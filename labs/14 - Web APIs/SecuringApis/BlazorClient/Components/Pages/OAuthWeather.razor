@@ -1,0 +1,109 @@
+@page "/oauthweather"
+@rendermode InteractiveServer
+@using BlazorClient.Services
+@inject OAuthApiClient Api
+
+<PageTitle>OAuth Weather</PageTitle>
+
+<h1>OAuth Weather</h1>
+
+<p>
+    Calls <code>/oauth/weatherforecast</code> on the ApiServer. Tokens come from the AuthServer
+    using the OAuth 2.0 client credentials flow. This page runs on the server, so the client secrets
+    stay in the server's configuration and are never sent to the browser.
+</p>
+
+<h2 class="h4">1. Get a token</h2>
+
+<div class="row g-2 mb-3">
+    <div class="col-sm-4">
+        <label class="form-label" for="client">Client</label>
+        <select id="client" class="form-select" @bind="clientId">
+            @foreach (var id in OAuthApiClient.ClientIds)
+            {
+                <option value="@id">@id</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-4">
+        <label class="form-label" for="scope">Scope</label>
+        <select id="scope" class="form-select" @bind="scope">
+            @foreach (var s in OAuthApiClient.Scopes)
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="GetToken">Get token</button>
+    <button class="btn btn-outline-secondary" @onclick="ClearToken" disabled="@(token is null)">Clear token</button>
+</div>
+
+<TokenDetails Token="token" />
+
+<h2 class="h4">2. Call the API</h2>
+
+<p>
+    @if (token?.AccessToken is null)
+    {
+        <text>No token: the request will be sent without an <code>Authorization</code> header.</text>
+    }
+    else
+    {
+        <text>The request will send the token in an <code>Authorization: Bearer</code> header.</text>
+    }
+</p>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="CallApi">Call API</button>
+</div>
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-warning">@errorMessage</div>
+}
+
+<ForecastResult Result="result" />
+
+@code {
+    private string clientId = OAuthApiClient.ClientIds[0];
+    private string scope = OAuthApiClient.Scopes[0];
+    private TokenResult? token;
+    private ApiCallResult? result;
+    private string? errorMessage;
+
+    private async Task GetToken()
+    {
+        errorMessage = null;
+        result = null;
+        try
+        {
+            token = await Api.GetTokenAsync(clientId, scope);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the AuthServer. Is it running? ({ex.Message})";
+        }
+    }
+
+    private void ClearToken()
+    {
+        token = null;
+        result = null;
+    }
+
+    private async Task CallApi()
+    {
+        errorMessage = null;
+        try
+        {
+            result = await Api.GetForecastAsync(token?.AccessToken);
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Could not reach the ApiServer. Is it running? ({ex.Message})";
+        }
+    }
+}

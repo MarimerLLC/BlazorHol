@@ -1,0 +1,36 @@
+@using BlazorClient.Services
+
+@if (Result is not null)
+{
+    <div class="alert @(Result.Forecasts is null ? "alert-danger" : "alert-success")">
+        API response: <strong>@Result.Status</strong>
+    </div>
+
+    @if (Result.Forecasts is not null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in Result.Forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    [Parameter]
+    public ApiCallResult? Result { get; set; }
+}
