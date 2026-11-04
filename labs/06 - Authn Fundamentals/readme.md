@@ -261,7 +261,7 @@ This component logs the user out by calling the `HttpContext.SignOutAsync` metho
             <AuthorizeView>
                 <Authorized>
                     Hello, @context.User.Identity?.Name
-                    <a href="/logout">Logout</a>
+                    <a href="/logout" data-enhance-nav="false">Logout</a>
                 </Authorized>
                 <NotAuthorized>
                     <a href="login">Login</a>
@@ -284,6 +284,8 @@ This component logs the user out by calling the `HttpContext.SignOutAsync` metho
 ```
 
 This code adds a new `AuthorizeView` component to the layout. This component displays different content based on the user's authentication state. If the user is authenticated, it displays a welcome message with the user's name and a logout link. If the user is not authenticated, it displays a login link.
+
+The logout link uses `data-enhance-nav="false"` to turn off Blazor's enhanced navigation for that link. This forces a full page load when the user logs out, which restarts the WebAssembly runtime in the browser and discards any cached user credentials held by client-side code. Without it, WebAssembly components could keep showing the previous user for a short time after logout.
 
 ## Test the Application
 

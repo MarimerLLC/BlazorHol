@@ -11,7 +11,9 @@
             <AuthorizeView>
                 <Authorized>
                     Hello, @context!.User!.Identity!.Name
-                    <a href="logout">Logout</a>
+                    @* Full page load so the WebAssembly runtime restarts and the
+                       cached user in CustomAuthenticationStateProvider is discarded *@
+                    <a href="logout" data-enhance-nav="false">Logout</a>
                 </Authorized>
                 <NotAuthorized>
                     <a href="login">Login</a>
